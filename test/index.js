@@ -10,6 +10,10 @@ var Face3 = require('../lib/Face3');
 var vec3 = glMatrix.vec3;
 
 describe('QuickHull', function () {
+  function rand(randLimit) {
+    return -randLimit + Math.random() * 2 * randLimit;
+  }
+
   function faceShift(f) {
     var t = f[0];
     f[0] = f[1];
@@ -70,6 +74,20 @@ describe('QuickHull', function () {
       )).equals(false);
     }
   }
+
+  it('should run quickhull on demand', function () {
+    var cp = new quickHull();
+    var limit = 10;
+    var i;
+    for (i = 0; i < limit; i += 1) {
+      cp.points.push([rand(limit), rand(limit), rand(limit)]);
+    }
+    cp.quickHull();
+    for (i = 0; i < limit; i += 1) {
+      cp.points.push([rand(limit), rand(limit), rand(limit)]);
+    }
+    cp.quickHull();
+  });
 
   describe('should compute the quickhull of a set of 3d points', function () {
     it('case: tetrahedron', function () {
@@ -229,10 +247,6 @@ describe('QuickHull', function () {
         var randLimit = 100;
         var i, j, k, q;
 
-        function rand() {
-          return -randLimit + Math.random() * 2 * randLimit;
-        }
-
         function getIndexes(faces) {
           var points = [];
           for (i = 0; i < faces.length; i += 1) {
@@ -248,7 +262,7 @@ describe('QuickHull', function () {
         }
 
         for (i = 0; i < n; i += 1) {
-          points.push([rand(), rand(), rand()]);
+          points.push([rand(randLimit), rand(randLimit), rand(randLimit)]);
         }
 
         // brute force solution

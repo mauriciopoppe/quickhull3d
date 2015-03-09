@@ -41,6 +41,9 @@ function CloudPoint(points) {
 
 CloudPoint.prototype.quickHull = function () {
   assert(this.points.length >= 4, 'quickHull needs at least 4 points to work with');
+  // rest the store
+  this.faceStore.reset();
+
   var extremes = this.computeExtremes();
   var initialIndices = this.computeInitialIndices(extremes);
   var tetrahedron = this.computeInitialTetrahedron(extremes, initialIndices);
@@ -50,23 +53,9 @@ CloudPoint.prototype.quickHull = function () {
   var result = this.cull(facesToCheck);
 
   // <debug>
-  //finalFaces.log = function () {
-  //  for (i = 0; i < finalFaces.length; i += 1) {
-  //    finalFaces[i].log();
-  //  }
-  //};
-  // </debug>
-
-  // each face has the following info
-  // vertices: points that are part of this face
-  // normal: normal of this face (pointing outside the hull)
-  // distanceToOrigin: saved during the updateFace call
-  // pointSet: should be empty on each face (used internally
-  // to compute the points that can see this face)
-  // <debug>
   var i;
   for (i = 0; i < result.length; i += 1) {
-    //assert(result[i].visiblePoints.length === 0);
+    assert(result[i].visiblePoints.length === 0);
   }
   //</debug>
   return result.map(function (face) {

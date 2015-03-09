@@ -5,14 +5,14 @@
   "homepage": "https://github.com/maurizzzio/QuickHull-3d",
   "bugs": "https://github.com/maurizzzio/quickhull3d/issues",
   "license": "MIT",
-  "main": "lib/quickhull3d.js",
+  "main": "index.js",
   "author": {
     "name": "Mauricio Poppe",
     "email": "mauricio.poppe@gmail.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/maurizzzio/quickhull3d"
+    "url": "https://github.com/maurizzzio/QuickHull-3d"
   },
   "keywords": [],
   "dependencies": {
@@ -37,7 +37,7 @@
     "jshint-stylish": "^0.4.0"
   },
   "scripts": {
-    "coveralls": "gulp istanbul && cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+    "coveralls": "gulp istanbul && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "test": "gulp test"
   }
 }

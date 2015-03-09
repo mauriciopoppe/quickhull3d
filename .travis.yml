@@ -3,7 +3,5 @@ env: CI=true
 sudo: false
 node_js:
   - '0.10'
-install:
-  - npm install
 after_script:
   - npm run coveralls

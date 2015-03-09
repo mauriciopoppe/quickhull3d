@@ -1,4 +1,4 @@
-# QuickHull-3d 
+# quickhull3d
 [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
 A quickhull implementation for 3d points

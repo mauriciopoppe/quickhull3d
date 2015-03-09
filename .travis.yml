@@ -6,6 +6,6 @@ node_js:
 install:
   - npm install
 script:
-  - npm istanbul
+  - gulp istanbul
 after_script:
   - npm run coveralls

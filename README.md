@@ -1,5 +1,5 @@
-# quickhull3d 
-[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-url]][daviddm-image] [![Coverage Status][coveralls-image]][coveralls-url]
+# QuickHull-3d 
+[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
 A quickhull implementation for 3d points
 
@@ -34,11 +34,11 @@ Copyright (c) 2015 Mauricio Poppe. Licensed under the MIT license.
 
 
 
-[npm-url]: https://npmjs.org/package/quickhull3d
-[npm-image]: https://badge.fury.io/js/quickhull3d.svg
-[travis-url]: https://travis-ci.org/maurizzzio/quickhull3d
-[travis-image]: https://travis-ci.org/maurizzzio/quickhull3d.svg?branch=master
-[daviddm-url]: https://david-dm.org/maurizzzio/quickhull3d.svg?theme=shields.io
-[daviddm-image]: https://david-dm.org/maurizzzio/quickhull3d
-[coveralls-url]: https://coveralls.io/r/maurizzzio/quickhull3d
-[coveralls-image]: https://coveralls.io/repos/maurizzzio/quickhull3d/badge.png
+[npm-url]: https://npmjs.org/package/QuickHull-3d
+[npm-image]: https://badge.fury.io/js/QuickHull-3d.svg
+[travis-url]: https://travis-ci.org/maurizzzio/QuickHull-3d
+[travis-image]: https://travis-ci.org/maurizzzio/QuickHull-3d.svg?branch=master
+[daviddm-url]: https://david-dm.org/maurizzzio/QuickHull-3d.svg?theme=shields.io
+[daviddm-image]: https://david-dm.org/maurizzzio/QuickHull-3d
+[coveralls-url]: https://coveralls.io/r/maurizzzio/QuickHull-3d
+[coveralls-image]: https://coveralls.io/repos/maurizzzio/QuickHull-3d/badge.png

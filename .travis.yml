@@ -1,6 +1,4 @@
 language: node_js
-env: CI=true,TRAVIS=true
-sudo: false
 node_js:
   - '0.10'
 after_script:

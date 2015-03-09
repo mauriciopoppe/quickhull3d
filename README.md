@@ -1,5 +1,5 @@
 # quickhull3d
-[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
+[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url]
 
 A quickhull implementation for 3d points
 
@@ -34,8 +34,8 @@ Copyright (c) 2015 Mauricio Poppe. Licensed under the MIT license.
 
 
 
-[npm-url]: https://npmjs.org/package/QuickHull-3d
-[npm-image]: https://badge.fury.io/js/QuickHull-3d.svg
+[npm-url]: https://npmjs.org/package/quickhull3d
+[npm-image]: https://badge.fury.io/js/quickhull3d.svg
 [travis-url]: https://travis-ci.org/maurizzzio/QuickHull-3d
 [travis-image]: https://travis-ci.org/maurizzzio/QuickHull-3d.svg?branch=master
 [daviddm-url]: https://david-dm.org/maurizzzio/QuickHull-3d.svg?theme=shields.io

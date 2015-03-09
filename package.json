@@ -1,0 +1,43 @@
+{
+  "name": "quickhull3d",
+  "description": "A quickhull implementation for 3d points",
+  "version": "0.1.0",
+  "homepage": "https://github.com/maurizzzio/QuickHull-3d",
+  "bugs": "https://github.com/maurizzzio/quickhull3d/issues",
+  "license": "MIT",
+  "main": "lib/quickhull3d.js",
+  "author": {
+    "name": "Mauricio Poppe",
+    "email": "mauricio.poppe@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maurizzzio/quickhull3d"
+  },
+  "keywords": [],
+  "dependencies": {
+    "debug": "^2.1.2",
+    "gl-matrix": "^2.1.0"
+  },
+  "devDependencies": {
+    "chai": "^2.1.1",
+    "coveralls": "^2.11.1",
+    "gulp": "^3.8.8",
+    "gulp-bump": "^0.1.11",
+    "gulp-filter": "~0.5.0",
+    "gulp-git": "~0.4.3",
+    "gulp-istanbul": "^0.6.0",
+    "gulp-jscs": "^1.1.2",
+    "gulp-jshint": "^1.8.4",
+    "gulp-load-plugins": "^0.6.0",
+    "gulp-mocha": "^1.1.0",
+    "gulp-plumber": "^0.6.5",
+    "gulp-tag-version": "~1.0.2",
+    "gulp-util": "^3.0.1",
+    "jshint-stylish": "^0.4.0"
+  },
+  "scripts": {
+    "coveralls": "gulp test && cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "test": "gulp test"
+  }
+}

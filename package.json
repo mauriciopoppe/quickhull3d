@@ -37,7 +37,7 @@
     "jshint-stylish": "^0.4.0"
   },
   "scripts": {
-    "coveralls": "gulp istanbul && cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "coveralls": "gulp istanbul && cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
     "test": "gulp test"
   }
 }

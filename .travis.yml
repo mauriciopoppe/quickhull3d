@@ -7,3 +7,5 @@ install:
   - npm install
 script:
   - npm istanbul
+after_script:
+  - npm run coveralls

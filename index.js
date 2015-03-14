@@ -276,11 +276,11 @@ CloudPoint.prototype.cull = function (facesToCheck) {
       edges = tuple.edges;
 
       // args: Array[], an array with the indices of each face
-      me.emit('visibleFaces', tuple.visibleFaces.map(function (face) {
-        return face.indices;
-      }));
+      //me.emit('visibleFaces', tuple.visibleFaces.map(function (face) {
+      //  return face.indices;
+      //}));
       // args: Array[] Array of 2-element arrays, there's an edge between those two elements
-      me.emit('horizon', tuple.edges);
+      //me.emit('horizon', tuple.edges);
 
       // from all the visible faces obtain the list of point indexes
       // to distribute them among all the new faces
@@ -306,3 +306,5 @@ module.exports = CloudPoint;
 module.exports.run = function (points) {
   return new CloudPoint(points).quickHull();
 };
+
+module.exports.Face3 = require('./lib/Face3');

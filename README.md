@@ -3,36 +3,106 @@
 
 A quickhull implementation for 3d points
 
+## Usage
 
-## Install
+**input** an array of `[x,y,z]` which are coordinates of 3d points
+
+**output** an array of `[i,j,k]` which are the indices of the points that make a face whose normal points outwards the center of the polyhedra
+
+```javascript
+var QuickHull3d = require('quickhull3d');
+var points = [
+  [0, 1, 0],
+  [1, -1, 1],
+  [-1, -1, 1],
+  [0, -1, -1]
+];
+QuickHull3d.run(points)
+
+// output:
+// [ [ 2, 0, 3 ], [ 0, 1, 3 ], [ 2, 1, 0 ], [ 2, 3, 1 ] ]
+// 1st face:
+//   points[2] = [-1, -1, 1]
+//   points[0] = [0, 1, 0]
+//   points[3] = [0, -1, -1]
+//   normal = (points[0] - points[2]) x (points[3] - points[2])
+```
+
+## Installation
 
 ```bash
 $ npm install --save quickhull3d
 ```
 
-
-## Usage
-
-```javascript
-var quickhull3d = require('quickhull3d');
-quickhull3d(); // "awesome"
-```
-
 ## API
 
-_(Coming soon)_
+```javascript
+var QuickHull3d = require('quickhull3d')
+```
 
+### `run`
 
-## Contributing
+#### `QuickHull3d.run(points)`
 
-In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [gulp](http://gulpjs.com/).
+**params**
+* `points` an array of 3d points whose convex hull needs to be computed
 
+**returns** An array of 3 element arrays, each subarray has the indices of 3 points which form a face whose
+normal points outside the polyhedra
+
+### Constructor
+
+#### `instance = new QuickHull3d([points])`
+**extends** `EventEmitter`
+
+**params**
+* `points` (optional) an array of 3d points whose convex hull needs to be computed
+
+**properties**
+* `points` an internal reference of the points
+* `faceStore` (private) an instance of the class `Face3Store`
+
+**events**
+* `initialTetrahedron(faces)` fired when the initial tetrahedron is built
+  * `faces` an array of arrays which correspond to the indices of the points that are part of the initial tetrahedron
+* `face:create()` fired when a face is created
+  * `face` an instance of the `Face3` class
+* `face:destroy` fired when a face is destroyed
+  * `face` an instance of the `Face3` class
+
+#### `instance.quickHull()`
+
+Computes the quickhull of all the points stored in the instance
+
+**returns** An array of 3 element arrays, each subarray has the indices of 3 points which form a face whose
+normal points outside the polyhedra
+
+**time complexity** `O(n log n)`
+
+### `Face3`
+
+#### `instance = new QuickHull3d.Face3(points, i, j, k)`
+
+You shouldn't call this constructor but it's documented here for reference of the events 
+fired by instances of `QuickHull3d`
+
+**params**
+* `points` {Array[]} 3d points whose convex hull needs to be computed
+* `i` {number} an index of a point which defines this face
+* `j` {number} an index of a point which defines this face
+* `k` {number} an index of a point which defines this face
+
+**properties**
+* `id` {number}
+* `destroyed` {Boolean} True if the face is not part of the convex hull 
+* `indices` {Array} The params `i,j,k` are saved here
+* `normal` {vec3} The normal of the plane defined by the vectors (`points[j] - points[i]` and `points[k] - points[i]`)
+* `signedDistanceToOrigin` {number} signed distance from the origin to the half plane which has the face,
+it's negative if the face's normal is pointing towards the origin
 
 ## License
 
 Copyright (c) 2015 Mauricio Poppe. Licensed under the MIT license.
-
-
 
 [npm-url]: https://npmjs.org/package/quickhull3d
 [npm-image]: https://badge.fury.io/js/quickhull3d.svg

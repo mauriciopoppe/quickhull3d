@@ -27,8 +27,8 @@ var points = [
   [-1, -1, 1],
   [0, -1, -1]
 ];
-QuickHull3d.run(points)
 
+QuickHull3d.run(points)
 // output:
 // [ [ 2, 0, 3 ], [ 0, 1, 3 ], [ 2, 1, 0 ], [ 2, 3, 1 ] ]
 // 1st face:
@@ -71,8 +71,6 @@ $ npm install --save quickhull3d
 var QuickHull3d = require('quickhull3d')
 ```
 
-### `run`
-
 #### `QuickHull3d.run(points)`
 
 **params**
@@ -110,7 +108,7 @@ normal points outside the polyhedra
 
 **time complexity** `O(n log n)`
 
-### `Face3`
+### Face3
 
 #### `instance = new QuickHull3d.Face3(points, i, j, k)`
 

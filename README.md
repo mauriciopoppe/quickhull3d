@@ -1,5 +1,5 @@
 # QuickHull 3d
-[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url]
+[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
 A quickhull implementation for 3d points in `O(n log n)` based on the paper:
 

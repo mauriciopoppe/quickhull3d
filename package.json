@@ -14,7 +14,7 @@
     "type": "git",
     "url": "https://github.com/maurizzzio/QuickHull-3d"
   },
-  "keywords": [],
+  "keywords": ["geometry", "convex hull", "quick hull"],
   "dependencies": {
     "debug": "^2.1.2",
     "gl-matrix": "^2.1.0"

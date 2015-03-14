@@ -1,7 +1,17 @@
-# quickhull3d
+# QuickHull 3d
 [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url]
 
-A quickhull implementation for 3d points
+A quickhull implementation for 3d points in `O(n log n)` based on the paper:
+
+- [The Quickhull Algorithm for Convex Hulls](http://www.cise.ufl.edu/~ungor/courses/fall06/papers/QuickHull.pdf)
+
+Helpful implementation material:
+
+- Dirk Gregorius presentation: http://box2d.org/files/GDC2014/DirkGregorius_ImplementingQuickHull.pdf
+
+Todo:
+
+- Face merge as described in Dirk Gregorious' presentation
 
 ## Usage
 

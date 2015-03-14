@@ -28,6 +28,27 @@ QuickHull3d.run(points)
 //   normal = (points[0] - points[2]) x (points[3] - points[2])
 ```
 
+Using the constructor:
+
+```javascript
+var QuickHull3d = require('quickhull3d');
+var points = [
+  [0, 1, 0],
+  [1, -1, 1],
+  [-1, -1, 1],
+  [0, -1, -1]
+];
+var instance = new QuickHull3d(points)
+instance.on('face:create', function (face) {
+  // see Face3 docs to see the properties of the face
+});
+instance.on('face:destroy', function (face) {
+  // see Face3 docs to see the properties of the face
+});
+instance.quickHull();
+```
+
+
 ## Installation
 
 ```bash
@@ -65,9 +86,9 @@ normal points outside the polyhedra
 **events**
 * `initialTetrahedron(faces)` fired when the initial tetrahedron is built
   * `faces` an array of arrays which correspond to the indices of the points that are part of the initial tetrahedron
-* `face:create()` fired when a face is created
+* `face:create(face)` fired when a face is created
   * `face` an instance of the `Face3` class
-* `face:destroy` fired when a face is destroyed
+* `face:destroy(face)` fired when a face is destroyed
   * `face` an instance of the `Face3` class
 
 #### `instance.quickHull()`

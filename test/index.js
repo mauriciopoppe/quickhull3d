@@ -95,7 +95,6 @@ describe('QuickHull', function () {
         [0, 1, 0], [1, -1, 1], [-1, -1, 1], [0, -1, -1]
       ];
       var faces = quickHull.run(points);
-      console.log(faces);
       cantSeePoint(points, faces, [0,0,0]);
       equalIndexes(faces, [
         [0, 2, 1], [0, 3, 2], [0, 1, 3], [1, 2, 3]

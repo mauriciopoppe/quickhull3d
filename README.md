@@ -142,4 +142,4 @@ Copyright (c) 2015 Mauricio Poppe. Licensed under the MIT license.
 [daviddm-url]: https://david-dm.org/maurizzzio/QuickHull-3d.svg?theme=shields.io
 [daviddm-image]: https://david-dm.org/maurizzzio/QuickHull-3d
 [coveralls-url]: https://coveralls.io/r/maurizzzio/QuickHull-3d
-[coveralls-image]: https://coveralls.io/repos/maurizzzio/QuickHull-3d/badge.png
+[coveralls-image]: https://coveralls.io/repos/maurizzzio/QuickHull-3d/badge.svg

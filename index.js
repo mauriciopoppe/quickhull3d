@@ -10,7 +10,8 @@
 
 var glMatrix = require('gl-matrix');
 var assert = require('assert');
-var debug = require('debug')('app:index');
+var debug = require('debug')('quickhull3d:index');
+var EventEmitter = require('events').EventEmitter;
 
 var vec3 = glMatrix.vec3;
 var utils = require('./lib/utils');
@@ -35,14 +36,15 @@ var Face3Store = require('./lib/Face3Store');
  * @param {vec3[]} points
  */
 function CloudPoint(points) {
+  EventEmitter.call(this);
   this.points = points || [];
-  this.faceStore = new Face3Store();
+  this.faceStore = new Face3Store(this);
 }
+
+CloudPoint.prototype = Object.create(EventEmitter.prototype);
 
 CloudPoint.prototype.quickHull = function () {
   assert(this.points.length >= 4, 'quickHull needs at least 4 points to work with');
-  // rest the store
-  this.faceStore.reset();
 
   var extremes = this.computeExtremes();
   var initialIndices = this.computeInitialIndices(extremes);
@@ -58,6 +60,8 @@ CloudPoint.prototype.quickHull = function () {
     assert(result[i].visiblePoints.length === 0);
   }
   //</debug>
+  // enable garbage collection on the faces that are not in the store
+  this.faceStore.reset();
   return result.map(function (face) {
     return face.indices;
   });
@@ -150,8 +154,7 @@ CloudPoint.prototype.computeExtremes = function () {
 };
 
 CloudPoint.prototype.computeInitialTetrahedron = function (extremes, indices) {
-  var i;
-
+  var me = this;
   var points = this.points;
   var v0 = extremes[0];
   var v1 = extremes[1];
@@ -161,6 +164,8 @@ CloudPoint.prototype.computeInitialTetrahedron = function (extremes, indices) {
   var ac = vec3.create();
   var ad = vec3.create();
   var normal = vec3.create();
+
+  var i;
   // Taken from http://everything2.com/title/How+to+paint+a+tetrahedron
   //
   //                              v2
@@ -176,7 +181,7 @@ CloudPoint.prototype.computeInitialTetrahedron = function (extremes, indices) {
   //           ,7`            ,..ooOOT`\`           /7
   //         ,7`      ,..ooOOT''`      |,          AV
   //        ,T,..ooOOT''`              `\         /7
-  //     v0 `'TTs.,                      |,      AV
+  //     v0 `'TTs.,                     |,       AV
   //            `'TTs.,                 `\      /7
   //                 `'TTs.,             |,    AV
   //                      `'TTs.,        `\   /7
@@ -209,7 +214,10 @@ CloudPoint.prototype.computeInitialTetrahedron = function (extremes, indices) {
   for (i = 0; i < tetrahedron.length; i += 1) {
     tetrahedron[i].updatePointVisibility(indices);
   }
-
+  // args: Array[] the indices of the points of each initial face
+  me.emit('initialTetrahedron', tetrahedron.map(function (face) {
+    return face.indices;
+  }));
   return tetrahedron;
 };
 
@@ -226,22 +234,25 @@ CloudPoint.prototype.computeInitialIndices = function (extremes) {
 };
 
 CloudPoint.prototype.cull = function (facesToCheck) {
+  var me = this;
   var points = this.points;
-  var currentFace, i, edge, newFace;
+  var currentFace, i, edge, newFace, LENGTH;
   var tuple;
   var visibleFaces, edges;
   var indicesToAssign, pointIndex;
 
   function gatherIndicesFromFaces(faces) {
-    var i;
+    var i, j, POINTS_LENGTH;
+    var FACES_LENGTH = faces.length;
     var indexes = [];
-    for (i = 0; i < faces.length; i += 1) {
+    var visiblePoints;
+    for (i = 0; i < FACES_LENGTH; i += 1) {
       assert(faces[i].destroyed);
-      indexes = indexes.concat(
-        faces[i].visiblePoints.map(function (tuple) {
-          return tuple.index;
-        })
-      );
+      visiblePoints = faces[i].visiblePoints;
+      POINTS_LENGTH = visiblePoints.length;
+      for (j = 0; j < POINTS_LENGTH; j += 1) {
+        indexes.push(visiblePoints[j].index);
+      }
       faces[i].visiblePoints = [];
     }
     return indexes;
@@ -260,22 +271,27 @@ CloudPoint.prototype.cull = function (facesToCheck) {
 
       // compute the visible faces and the horizon edges
       tuple = this.faceStore.computeHorizon(currentFace, points[pointIndex]);
-      debug('tuple edges=%j faces=%j', tuple.edges, tuple.visibleFaces.map(function (face) { return face.id }));
+      // debug('tuple edges=%j faces=%j', tuple.edges, tuple.visibleFaces.map(function (face) { return face.id }));
       visibleFaces = tuple.visibleFaces;
       edges = tuple.edges;
+
+      // args: Array[], an array with the indices of each face
+      me.emit('visibleFaces', tuple.visibleFaces.map(function (face) {
+        return face.indices;
+      }));
+      // args: Array[] Array of 2-element arrays, there's an edge between those two elements
+      me.emit('horizon', tuple.edges);
 
       // from all the visible faces obtain the list of point indexes
       // to distribute them among all the new faces
       indicesToAssign = gatherIndicesFromFaces(visibleFaces);
       debug('indices to assign=%j', indicesToAssign);
 
-      for (i = 0; i < edges.length; i += 1) {
+      for (i = 0, LENGTH = edges.length; i < LENGTH; i += 1) {
         edge = edges[i];
+        // since every face is created using the right hand rule there's no need
+        // to check where the normal of this face is pointing to
         newFace = this.faceStore.create(points, edge[0], edge[1], pointIndex);
-        // the new face normal must have the same direction as the current face
-        //if (vec3.dot(currentFace.normal, newFace.normal) < 0) {
-        //  newFace.invert();
-        //}
         newFace.updatePointVisibility(indicesToAssign);
         facesToCheck.push(newFace);
       }

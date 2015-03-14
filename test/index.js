@@ -75,7 +75,7 @@ describe('QuickHull', function () {
     }
   }
 
-  it('should run quickhull on demand', function () {
+  it('should run quickhull on demand (stacking points)', function () {
     var cp = new quickHull();
     var limit = 10;
     var i;

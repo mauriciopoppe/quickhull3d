@@ -48,7 +48,8 @@ CloudPoint.prototype.quickHull = function () {
 
   var extremes = this.computeExtremes();
   var initialIndices = this.computeInitialIndices(extremes);
-  var tetrahedron = this.computeInitialTetrahedron(extremes, initialIndices);
+  var tetrahedron = this.computeInitialTetrahedron(extremes);
+  this.assignIndices(tetrahedron, initialIndices);
 
   // the final faces are the initial faces for now
   var facesToCheck = tetrahedron.slice();
@@ -57,7 +58,7 @@ CloudPoint.prototype.quickHull = function () {
   // <debug>
   var i;
   for (i = 0; i < result.length; i += 1) {
-    assert(result[i].visiblePoints.length === 0);
+    assert(result[i].visibleIndices.length === 0);
   }
   //</debug>
   // enable garbage collection on the faces that are not in the store
@@ -189,6 +190,7 @@ CloudPoint.prototype.computeInitialTetrahedron = function (extremes, indices) {
   //                                `'TTs.,\/7
   //                                     `'T`
   //                                       v1
+  //
   var tetrahedron = [
     // assume that each face's normal points outside
     this.faceStore.create(points, v0, v1, v2),    // left
@@ -196,6 +198,16 @@ CloudPoint.prototype.computeInitialTetrahedron = function (extremes, indices) {
     this.faceStore.create(points, v0, v3, v1),    // bottom
     this.faceStore.create(points, v0, v2, v3)     // back
   ];
+
+  // set neighbors
+  var left = tetrahedron[0];
+  var right = tetrahedron[1];
+  var bottom = tetrahedron[2];
+  var back = tetrahedron[3];
+  tetrahedron[0].setNeighbors(bottom, right, back);
+  tetrahedron[1].setNeighbors(bottom, back, left);
+  tetrahedron[2].setNeighbors(back, right, left);
+  tetrahedron[3].setNeighbors(left, right, bottom);
 
   // fix each face if it's normal points inside
   // ((b - a) x (c - a)) · d if positive then the any face's normal
@@ -209,16 +221,41 @@ CloudPoint.prototype.computeInitialTetrahedron = function (extremes, indices) {
     tetrahedron[1].invert();
     tetrahedron[2].invert();
     tetrahedron[3].invert();
+    tetrahedron[0].setNeighbors(right, bottom, back);
+    tetrahedron[1].setNeighbors(back, bottom, left);
+    tetrahedron[2].setNeighbors(right, back, left);
+    tetrahedron[3].setNeighbors(right, left, bottom);
   }
 
-  for (i = 0; i < tetrahedron.length; i += 1) {
-    tetrahedron[i].updatePointVisibility(indices);
-  }
   // args: Array[] the indices of the points of each initial face
   me.emit('initialTetrahedron', tetrahedron.map(function (face) {
     return face.indices;
   }));
   return tetrahedron;
+};
+
+CloudPoint.prototype.assignIndices = function (faces, indices) {
+  var i, j, INDICES = indices.length, FACES = faces.length;
+  var far, tDist, maxDist;
+
+  debug('indices to assign: %j', indices);
+  for (i = 0; i < INDICES; i += 1) {
+    far = -1;
+    maxDist = 0;
+    for (j = 0; j < FACES; j += 1) {
+      tDist = vec3.dot(faces[j].normal, this.points[indices[i]]) -
+        faces[j].signedDistanceToOrigin;
+      if (tDist> maxDist) {
+        maxDist = tDist;
+        far = j;
+      }
+    }
+    if (far !== -1) {
+      // point[i] is visible by at least one face
+      debug('\tindex to face: index=%d -> face=%d', indices[i], faces[far].id);
+      faces[far].addVisiblePoint(indices[i], maxDist);
+    }
+  }
 };
 
 CloudPoint.prototype.computeInitialIndices = function (extremes) {
@@ -242,18 +279,13 @@ CloudPoint.prototype.cull = function (facesToCheck) {
   var indicesToAssign, pointIndex;
 
   function gatherIndicesFromFaces(faces) {
-    var i, j, POINTS_LENGTH;
+    var i;
     var FACES_LENGTH = faces.length;
     var indexes = [];
-    var visiblePoints;
     for (i = 0; i < FACES_LENGTH; i += 1) {
       assert(faces[i].destroyed);
-      visiblePoints = faces[i].visiblePoints;
-      POINTS_LENGTH = visiblePoints.length;
-      for (j = 0; j < POINTS_LENGTH; j += 1) {
-        indexes.push(visiblePoints[j].index);
-      }
-      faces[i].visiblePoints = [];
+      indexes = indexes.concat(faces[i].visibleIndices);
+      faces[i].visibleIndices = [];
     }
     return indexes;
   }
@@ -261,17 +293,17 @@ CloudPoint.prototype.cull = function (facesToCheck) {
   while (facesToCheck.length) {
     currentFace = facesToCheck.shift();
     debug('== iteration ==');
-    debug('current face=%d, indices=%j', currentFace.id, currentFace.indices);
-    assert(currentFace.visiblePoints);
-    if (!currentFace.destroyed && currentFace.visiblePoints.length) {
+    debug('current face=%d, vertices=%j, visibleIndices=%j', currentFace.id, currentFace.indices, currentFace.visibleIndices);
+    assert(currentFace.visibleIndices);
+    if (!currentFace.destroyed && currentFace.visibleIndices.length) {
       // index of the closest point to the current face
       // shift it since it's no longer assignable to the other faces
-      pointIndex = currentFace.visiblePoints.shift().index;
-      debug('point index to join edges=%d', pointIndex);
+      pointIndex = currentFace.visibleIndices.shift();
+      debug('\tpoint index to join edges=%d', pointIndex);
 
       // compute the visible faces and the horizon edges
       tuple = this.faceStore.computeHorizon(currentFace, points[pointIndex]);
-      // debug('tuple edges=%j faces=%j', tuple.edges, tuple.visibleFaces.map(function (face) { return face.id }));
+      debug('\ttuple edges=%j faces=%j', tuple.edges, tuple.visibleFaces.map(function (face) { return face.id }));
       visibleFaces = tuple.visibleFaces;
       edges = tuple.edges;
 
@@ -285,16 +317,18 @@ CloudPoint.prototype.cull = function (facesToCheck) {
       // from all the visible faces obtain the list of point indexes
       // to distribute them among all the new faces
       indicesToAssign = gatherIndicesFromFaces(visibleFaces);
-      debug('indices to assign=%j', indicesToAssign);
 
+      var newFaces = [];
       for (i = 0, LENGTH = edges.length; i < LENGTH; i += 1) {
         edge = edges[i];
         // since every face is created using the right hand rule there's no need
         // to check where the normal of this face is pointing to
         newFace = this.faceStore.create(points, edge[0], edge[1], pointIndex);
-        newFace.updatePointVisibility(indicesToAssign);
         facesToCheck.push(newFace);
+        newFaces.push(newFace);
       }
+
+      this.assignIndices(newFaces, indicesToAssign);
     }
   }
 

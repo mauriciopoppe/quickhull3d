@@ -14,12 +14,18 @@
     "type": "git",
     "url": "https://github.com/maurizzzio/QuickHull-3d"
   },
-  "keywords": ["geometry", "convex hull", "quick hull"],
+  "keywords": [
+    "geometry",
+    "convex hull",
+    "quick hull"
+  ],
   "dependencies": {
     "debug": "^2.1.2",
-    "gl-matrix": "^2.1.0"
+    "gl-matrix": "^2.1.0",
+    "plotly": "^1.0.2"
   },
   "devDependencies": {
+    "benchmark": "^1.0.0",
     "chai": "^2.1.1",
     "coveralls": "^2.11.1",
     "gulp": "^3.8.8",

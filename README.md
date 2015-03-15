@@ -125,7 +125,9 @@ fired by instances of `QuickHull3d`
 * `id` {number}
 * `destroyed` {Boolean} True if the face is not part of the convex hull 
 * `indices` {Array} The params `i,j,k` are saved here
+* `neighbors` {Face3[]} The neighbors of this face (which are also faces) in counter-clockwise order
 * `normal` {vec3} The normal of the plane defined by the vectors (`points[j] - points[i]` and `points[k] - points[i]`)
+* `maxDistance` {number} signed distance of the furthest point this face can see
 * `signedDistanceToOrigin` {number} signed distance from the origin to the half plane which has the face,
 it's negative if the face's normal is pointing towards the origin
 

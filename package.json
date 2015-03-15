@@ -1,7 +1,7 @@
 {
   "name": "quickhull3d",
   "description": "A quickhull implementation for 3d points",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "homepage": "https://github.com/maurizzzio/QuickHull-3d",
   "bugs": "https://github.com/maurizzzio/QuickHull-3d/issues",
   "license": "MIT",

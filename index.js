@@ -273,9 +273,9 @@ CloudPoint.prototype.computeInitialIndices = function (extremes) {
 CloudPoint.prototype.cull = function (facesToCheck) {
   var me = this;
   var points = this.points;
-  var currentFace, i, edge, newFace, LENGTH;
+  var currentFace, i, j, edge, newFace, LENGTH;
   var tuple;
-  var visibleFaces, edges;
+  var visibleFaces, horizonEdges, horizonFaces;
   var indicesToAssign, pointIndex;
 
   function gatherIndicesFromFaces(faces) {
@@ -305,7 +305,8 @@ CloudPoint.prototype.cull = function (facesToCheck) {
       tuple = this.faceStore.computeHorizon(currentFace, points[pointIndex]);
       debug('\ttuple edges=%j faces=%j', tuple.edges, tuple.visibleFaces.map(function (face) { return face.id }));
       visibleFaces = tuple.visibleFaces;
-      edges = tuple.edges;
+      horizonEdges = tuple.horizonEdges;
+      horizonFaces = tuple.horizonFaces;
 
       // args: Array[], an array with the indices of each face
       //me.emit('visibleFaces', tuple.visibleFaces.map(function (face) {
@@ -319,13 +320,22 @@ CloudPoint.prototype.cull = function (facesToCheck) {
       indicesToAssign = gatherIndicesFromFaces(visibleFaces);
 
       var newFaces = [];
-      for (i = 0, LENGTH = edges.length; i < LENGTH; i += 1) {
-        edge = edges[i];
+      for (i = 0, LENGTH = horizonEdges.length; i < LENGTH; i += 1) {
+        edge = horizonEdges[i];
         // since every face is created using the right hand rule there's no need
         // to check where the normal of this face is pointing to
         newFace = this.faceStore.create(points, edge[0], edge[1], pointIndex);
         facesToCheck.push(newFace);
         newFaces.push(newFace);
+      }
+
+      //console.log(newFaces.map(function (face) {
+      //  return face.indices;
+      //}));
+
+      for (j = LENGTH - 1, i = 0; i < LENGTH; j = i, i += 1) {
+        newFaces[j].updateNeighbors(newFaces[i]);
+        horizonFaces[i].updateNeighbors(newFaces[i]);
       }
 
       this.assignIndices(newFaces, indicesToAssign);

@@ -236,24 +236,21 @@ CloudPoint.prototype.computeInitialTetrahedron = function (extremes, indices) {
 
 CloudPoint.prototype.assignIndices = function (faces, indices) {
   var i, j, INDICES = indices.length, FACES = faces.length;
-  var far, tDist, maxDist;
+  var tDist;
 
+  // lemma 2.2 (If an extreme point of the input is above two or more facets at
+  // a partition step in Quickhull, it will be added to the hull irrespective of
+  // which outside set it is assigned to.)
   debug('indices to assign: %j', indices);
   for (i = 0; i < INDICES; i += 1) {
-    far = -1;
-    maxDist = 0;
     for (j = 0; j < FACES; j += 1) {
       tDist = vec3.dot(faces[j].normal, this.points[indices[i]]) -
         faces[j].signedDistanceToOrigin;
-      if (tDist> maxDist) {
-        maxDist = tDist;
-        far = j;
+      if (tDist > 0) {
+        debug('\tindex to face: index=%d -> face=%d', indices[i], faces[j].id);
+        faces[j].addVisiblePoint(indices[i], tDist);
+        break;
       }
-    }
-    if (far !== -1) {
-      // point[i] is visible by at least one face
-      debug('\tindex to face: index=%d -> face=%d', indices[i], faces[far].id);
-      faces[far].addVisiblePoint(indices[i], maxDist);
     }
   }
 };
@@ -303,7 +300,7 @@ CloudPoint.prototype.cull = function (facesToCheck) {
 
       // compute the visible faces and the horizon edges
       tuple = this.faceStore.computeHorizon(currentFace, points[pointIndex]);
-      debug('\ttuple edges=%j faces=%j', tuple.edges, tuple.visibleFaces.map(function (face) { return face.id }));
+      //debug('\ttuple edges=%j faces=%j', tuple.edges, tuple.visibleFaces.map(function (face) { return face.id }));
       visibleFaces = tuple.visibleFaces;
       horizonEdges = tuple.horizonEdges;
       horizonFaces = tuple.horizonFaces;

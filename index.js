@@ -204,10 +204,10 @@ CloudPoint.prototype.computeInitialTetrahedron = function (extremes, indices) {
   var right = tetrahedron[1];
   var bottom = tetrahedron[2];
   var back = tetrahedron[3];
-  tetrahedron[0].setNeighbors(bottom, right, back);
-  tetrahedron[1].setNeighbors(bottom, back, left);
-  tetrahedron[2].setNeighbors(back, right, left);
-  tetrahedron[3].setNeighbors(left, right, bottom);
+  left.setNeighbors(bottom, right, back);
+  right.setNeighbors(bottom, back, left);
+  bottom.setNeighbors(back, right, left);
+  back.setNeighbors(left, right, bottom);
 
   // fix each face if it's normal points inside
   // ((b - a) x (c - a)) · d if positive then the any face's normal
@@ -221,10 +221,10 @@ CloudPoint.prototype.computeInitialTetrahedron = function (extremes, indices) {
     tetrahedron[1].invert();
     tetrahedron[2].invert();
     tetrahedron[3].invert();
-    tetrahedron[0].setNeighbors(right, bottom, back);
-    tetrahedron[1].setNeighbors(back, bottom, left);
-    tetrahedron[2].setNeighbors(right, back, left);
-    tetrahedron[3].setNeighbors(right, left, bottom);
+    left.setNeighbors(right, bottom, back);
+    right.setNeighbors(back, bottom, left);
+    bottom.setNeighbors(right, back, left);
+    back.setNeighbors(right, left, bottom);
   }
 
   // args: Array[] the indices of the points of each initial face

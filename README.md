@@ -13,6 +13,10 @@ Todo:
 
 - Face merge as described in Dirk Gregorious' presentation
 
+## Demo
+
+http://requirebin.com/?gist=ca949bc768ef9cc60473
+
 ## Usage
 
 **input** an array of `[x,y,z]` which are coordinates of 3d points

@@ -4,6 +4,8 @@
 var Benchmark = require('benchmark');
 var suite = new Benchmark.Suite();
 
+var args = Array.prototype.slice.call(process.argv, 2);
+
 var QuickHull3d = require('../index');
 var fs = require('fs');
 var pkg = require('../package.json');
@@ -34,12 +36,13 @@ suite
     }
 
     var data = {
+      args: args,
       x: x,
       y: y,
       relativeMarginOfError: rme,
       type: 'scatter'
     };
 
-    fs.appendFileSync('./data/' + pkg.version, '\n' + JSON.stringify(data));
+    fs.appendFileSync('./data/data.json', JSON.stringify(data) + '\n');
   })
   .run({ async: true });

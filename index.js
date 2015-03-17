@@ -238,6 +238,9 @@ CloudPoint.prototype.assignIndices = function (faces, indices) {
   var i, j, INDICES = indices.length, FACES = faces.length;
   var tDist;
 
+  // lemma 2.2 (If an extreme point of the input is above two or more facets at
+  // a partition step in Quickhull, it will be added to the hull irrespective of
+  // which outside set it is assigned to.)
   debug('indices to assign: %j', indices);
   for (i = 0; i < INDICES; i += 1) {
     for (j = 0; j < FACES; j += 1) {

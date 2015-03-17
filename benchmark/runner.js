@@ -8,10 +8,9 @@ var args = Array.prototype.slice.call(process.argv, 2);
 
 var QuickHull3d = require('../index');
 var fs = require('fs');
-var pkg = require('../package.json');
 
 var arr = ['100'
-  , '1000', '10000', '100000'
+  , '1000', '10000', '100000', '200000'
 ];
 arr.forEach(function (n) {
   var data = fs.readFileSync('./points' + n + '.json');
@@ -26,23 +25,22 @@ suite
     console.log(String(event.target));
   })
   .on('complete', function () {
-    var x = [];
-    var y = [];
-    var rme = [];
-    for (var i = 0; i < arr.length; i += 1) {
-      x.push(+arr[i]);
-      y.push(this[i].hz);
-      rme.push(this[i].stats.rme)
-    }
-
     var data = {
-      args: args,
-      x: x,
-      y: y,
-      relativeMarginOfError: rme,
+      y: [],  // in ms
+      x: [],
+      rme: [],
+      hz: [],
+      name: args[0],
       type: 'scatter'
     };
 
-    fs.appendFileSync('./data/data.json', JSON.stringify(data) + '\n');
+    for (var i = 0; i < arr.length; i += 1) {
+      data.x.push(+arr[i]);
+      data.y.push(this[i].times.period * 1000);
+      data.hz.push(this[i].hz);
+      data.rme.push(this[i].stats.rme)
+    }
+
+    fs.appendFileSync('./data/data-v2.json', JSON.stringify(data) + '\n');
   })
   .run({ async: true });

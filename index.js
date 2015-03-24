@@ -44,6 +44,7 @@ function CloudPoint(points) {
 CloudPoint.prototype = Object.create(EventEmitter.prototype);
 
 CloudPoint.prototype.quickHull = function () {
+  var i, F_LENGTH;
   assert(this.points.length >= 4, 'quickHull needs at least 4 points to work with');
 
   var extremes = this.computeExtremes();
@@ -53,19 +54,21 @@ CloudPoint.prototype.quickHull = function () {
 
   // the final faces are the initial faces for now
   var facesToCheck = tetrahedron.slice();
-  var result = this.cull(facesToCheck);
+  var faces = this.cull(facesToCheck);
+  var result = [];
 
   // <debug>
-  var i;
-  for (i = 0; i < result.length; i += 1) {
-    assert(result[i].visibleIndices.length === 0);
-  }
+  //var i;
+  //for (i = 0; i < result.length; i += 1) {
+  //  assert(result[i].visibleIndices.length === 0);
+  //}
   //</debug>
   // enable garbage collection on the faces that are not in the store
   this.faceStore.reset();
-  return result.map(function (face) {
-    return face.indices;
-  });
+  for (i = 0, F_LENGTH = faces.length; i < F_LENGTH; i += 1) {
+    result.push(faces[i].edge.collect());
+  }
+  return result;
 };
 
 CloudPoint.prototype.computeExtremes = function () {
@@ -204,10 +207,11 @@ CloudPoint.prototype.computeInitialTetrahedron = function (extremes, indices) {
   var right = tetrahedron[1];
   var bottom = tetrahedron[2];
   var back = tetrahedron[3];
-  left.setNeighbors(bottom, right, back);
-  right.setNeighbors(bottom, back, left);
-  bottom.setNeighbors(back, right, left);
-  back.setNeighbors(left, right, bottom);
+
+  // double link between twins created on updateTwins, no need to call it many times
+  left.updateTwins(bottom, right, back);
+  bottom.updateTwins(back, right);
+  right.updateTwins(back);
 
   // fix each face if it's normal points inside
   // ((b - a) x (c - a)) · d if positive then the any face's normal
@@ -221,15 +225,11 @@ CloudPoint.prototype.computeInitialTetrahedron = function (extremes, indices) {
     tetrahedron[1].invert();
     tetrahedron[2].invert();
     tetrahedron[3].invert();
-    left.setNeighbors(right, bottom, back);
-    right.setNeighbors(back, bottom, left);
-    bottom.setNeighbors(right, back, left);
-    back.setNeighbors(right, left, bottom);
   }
 
   // args: Array[] the indices of the points of each initial face
   me.emit('initialTetrahedron', tetrahedron.map(function (face) {
-    return face.indices;
+    return face.edge.collect();
   }));
   return tetrahedron;
 };
@@ -272,7 +272,7 @@ CloudPoint.prototype.cull = function (facesToCheck) {
   var points = this.points;
   var currentFace, i, j, edge, newFace, LENGTH;
   var tuple;
-  var visibleFaces, horizonEdges, horizonFaces;
+  var visibleFaces, horizonEdges;
   var indicesToAssign, pointIndex;
 
   function gatherIndicesFromFaces(faces) {
@@ -290,7 +290,7 @@ CloudPoint.prototype.cull = function (facesToCheck) {
   while (facesToCheck.length) {
     currentFace = facesToCheck.shift();
     debug('== iteration ==');
-    debug('current face=%d, vertices=%j, visibleIndices=%j', currentFace.id, currentFace.indices, currentFace.visibleIndices);
+    debug('current face=%d, vertices=%j, visibleIndices=%j', currentFace.id, currentFace.edge.indices, currentFace.visibleIndices);
     assert(currentFace.visibleIndices);
     if (!currentFace.destroyed && currentFace.visibleIndices.length) {
       // index of the closest point to the current face
@@ -303,7 +303,6 @@ CloudPoint.prototype.cull = function (facesToCheck) {
       //debug('\ttuple edges=%j faces=%j', tuple.edges, tuple.visibleFaces.map(function (face) { return face.id }));
       visibleFaces = tuple.visibleFaces;
       horizonEdges = tuple.horizonEdges;
-      horizonFaces = tuple.horizonFaces;
 
       // args: Array[], an array with the indices of each face
       //me.emit('visibleFaces', tuple.visibleFaces.map(function (face) {
@@ -321,18 +320,18 @@ CloudPoint.prototype.cull = function (facesToCheck) {
         edge = horizonEdges[i];
         // since every face is created using the right hand rule there's no need
         // to check where the normal of this face is pointing to
-        newFace = this.faceStore.create(points, edge[0], edge[1], pointIndex);
+        newFace = this.faceStore.create(points, edge.indices[0], edge.indices[1], pointIndex);
         facesToCheck.push(newFace);
         newFaces.push(newFace);
       }
 
-      //console.log(newFaces.map(function (face) {
-      //  return face.indices;
-      //}));
-
       for (j = LENGTH - 1, i = 0; i < LENGTH; j = i, i += 1) {
-        newFaces[j].updateNeighbors(newFaces[i]);
-        horizonFaces[i].updateNeighbors(newFaces[i]);
+        // new face with new face
+        newFaces[j].updateTwins(newFaces[i]);
+        // new face with horizon face (which is accessible through the twin's reference)
+        horizonEdges[i].twin.face
+          .updateTwins(newFaces[i]);
+        // TODO: merge faces
       }
 
       this.assignIndices(newFaces, indicesToAssign);

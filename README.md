@@ -1,5 +1,7 @@
 # QuickHull 3d
-[![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
+[![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
+
+[![NPM][npm-image]][npm-url]
 
 A quickhull implementation for 3d points in `O(n log n)` based on the paper:
 
@@ -8,10 +10,12 @@ A quickhull implementation for 3d points in `O(n log n)` based on the paper:
 Helpful implementation material:
 
 - Dirk Gregorius presentation: http://box2d.org/files/GDC2014/DirkGregorius_ImplementingQuickHull.pdf
+- Convex Hull Generation with Quick Hull by Randy Gaul: http://www.randygaul.net/wp-content/uploads/2013/11/QuickHull.pdf
 
 Todo:
 
-- Face merge as described in Dirk Gregorious' presentation
+[x] HalfEdge representation of the edges
+[ ] Face merge as described in Dirk Gregorious' presentation
 
 ## Demo
 
@@ -140,7 +144,7 @@ it's negative if the face's normal is pointing towards the origin
 Copyright (c) 2015 Mauricio Poppe. Licensed under the MIT license.
 
 [npm-url]: https://npmjs.org/package/quickhull3d
-[npm-image]: https://badge.fury.io/js/quickhull3d.svg
+[npm-image]: https://nodei.co/npm/quickhull3d.png?downloads=true
 [travis-url]: https://travis-ci.org/maurizzzio/QuickHull-3d
 [travis-image]: https://travis-ci.org/maurizzzio/QuickHull-3d.svg?branch=master
 [daviddm-url]: https://david-dm.org/maurizzzio/QuickHull-3d.svg?theme=shields.io

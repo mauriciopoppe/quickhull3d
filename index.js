@@ -16,6 +16,7 @@ var EventEmitter = require('events').EventEmitter;
 var vec3 = glMatrix.vec3;
 var utils = require('./lib/utils');
 var Face3Store = require('./lib/Face3Store');
+var Constants = require('./lib/Constants');
 
 /**
  * Quickhull implementation in 3d, based on the paper
@@ -43,10 +44,12 @@ function CloudPoint(points) {
 
 CloudPoint.prototype = Object.create(EventEmitter.prototype);
 
-CloudPoint.prototype.quickHull = function () {
-  var i, F_LENGTH;
+CloudPoint.prototype.quickHull = function (options) {
+  options = options || {};
+  var i, j, F_LENGTH;
   assert(this.points.length >= 4, 'quickHull needs at least 4 points to work with');
 
+  this.computeEPS();
   var extremes = this.computeExtremes();
   var initialIndices = this.computeInitialIndices(extremes);
   var tetrahedron = this.computeInitialTetrahedron(extremes);
@@ -66,9 +69,31 @@ CloudPoint.prototype.quickHull = function () {
   // enable garbage collection on the faces that are not in the store
   this.faceStore.reset();
   for (i = 0, F_LENGTH = faces.length; i < F_LENGTH; i += 1) {
-    result.push(faces[i].edge.collect());
+    var indices = faces[i].edge.collect();
+    if (options.avoidTriangulation) {
+      result.push(indices);
+    } else {
+      for (j = 1; j < indices.length - 1; j += 1) {
+        result.push([indices[0], indices[j], indices[j + 1]]);
+      }
+    }
   }
   return result;
+};
+
+CloudPoint.prototype.computeEPS = function () {
+  var points = this.points;
+  var P_LENGTH = points.length;
+  var max = [0,0,0];
+  var i, j;
+  for (i = 0; i < P_LENGTH; i += 1) {
+    for (j = 0; j < 3; j += 1) {
+      max[i] = Math.max(max[i], Math.abs(points[i][j]));
+    }
+  }
+
+  // described in page 77 of Dirk Gregorius' presentation
+  Constants.EPS = 3 * (max[0] + max[1] + max[2]) * Constants.DOUBLE_EPS;
 };
 
 CloudPoint.prototype.computeExtremes = function () {
@@ -208,11 +233,6 @@ CloudPoint.prototype.computeInitialTetrahedron = function (extremes, indices) {
   var bottom = tetrahedron[2];
   var back = tetrahedron[3];
 
-  // double link between twins created on updateTwins, no need to call it many times
-  left.updateTwins(bottom, right, back);
-  bottom.updateTwins(back, right);
-  right.updateTwins(back);
-
   // fix each face if it's normal points inside
   // ((b - a) x (c - a)) · d if positive then the any face's normal
   // is pointing inside (tested with tetrahedron[0])
@@ -226,6 +246,11 @@ CloudPoint.prototype.computeInitialTetrahedron = function (extremes, indices) {
     tetrahedron[2].invert();
     tetrahedron[3].invert();
   }
+
+  // double link between twins created on updateTwins, no need to call it many times
+  left.updateTwins(bottom, right, back);
+  bottom.updateTwins(back, right);
+  right.updateTwins(back);
 
   // args: Array[] the indices of the points of each initial face
   me.emit('initialTetrahedron', tetrahedron.map(function (face) {
@@ -290,7 +315,9 @@ CloudPoint.prototype.cull = function (facesToCheck) {
   while (facesToCheck.length) {
     currentFace = facesToCheck.shift();
     debug('== iteration ==');
-    debug('current face=%d, vertices=%j, visibleIndices=%j', currentFace.id, currentFace.edge.indices, currentFace.visibleIndices);
+    //debug('current face=%d, vertices=%j, visibleIndices=%j',
+    //  currentFace.id, currentFace.edge.collect(), currentFace.visibleIndices);
+
     assert(currentFace.visibleIndices);
     if (!currentFace.destroyed && currentFace.visibleIndices.length) {
       // index of the closest point to the current face
@@ -321,17 +348,23 @@ CloudPoint.prototype.cull = function (facesToCheck) {
         // since every face is created using the right hand rule there's no need
         // to check where the normal of this face is pointing to
         newFace = this.faceStore.create(points, edge.indices[0], edge.indices[1], pointIndex);
-        facesToCheck.push(newFace);
         newFaces.push(newFace);
       }
 
       for (j = LENGTH - 1, i = 0; i < LENGTH; j = i, i += 1) {
+        var mergeCount = 0;
+        newFace = newFaces[i];
         // new face with new face
-        newFaces[j].updateTwins(newFaces[i]);
+        mergeCount += newFaces[j].updateTwins(newFace);
         // new face with horizon face (which is accessible through the twin's reference)
-        horizonEdges[i].twin.face
-          .updateTwins(newFaces[i]);
-        // TODO: merge faces
+        // face merge is done in updateTwins
+        mergeCount += horizonEdges[i].twin.face.updateTwins(newFace);
+
+        // only push a new face when there weren't any merges
+        if (mergeCount === 0) {
+          //debug('pushing new face %d, %j', newFace.id, newFace.edge.collect());
+          facesToCheck.push(newFace);
+        }
       }
 
       this.assignIndices(newFaces, indicesToAssign);
@@ -343,8 +376,8 @@ CloudPoint.prototype.cull = function (facesToCheck) {
 
 module.exports = CloudPoint;
 
-module.exports.run = function (points) {
-  return new CloudPoint(points).quickHull();
+module.exports.run = function (points, options) {
+  return new CloudPoint(points).quickHull(options);
 };
 
 module.exports.Face3 = require('./lib/Face3');

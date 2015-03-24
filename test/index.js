@@ -16,15 +16,21 @@ describe('QuickHull', function () {
 
   function faceShift(f) {
     var t = f[0];
-    f[0] = f[1];
-    f[1] = f[2];
-    f[2] = t;
+    for (var i = 0; i < f.length - 1; i += 1) {
+      f[i] = f[i + 1];
+    }
+    f[f.length - 1] = t;
   }
 
   function equalShifted(f1, f2) {
     var equals = 0;
-    for (var i = 0; i < 3; i += 1) {
-      if (f1[0] == f2[0] && f1[1] === f2[1] && f1[2] === f2[2]) {
+    var j;
+    for (var i = 0; i < f2.length; i += 1) {
+      var singleEq = 0;
+      for (j = 0; j < f2.length; j += 1) {
+        singleEq += f1[j] == f2[j];
+      }
+      if (singleEq === f2.length) {
         equals += 1;
       }
       faceShift(f2);
@@ -75,21 +81,21 @@ describe('QuickHull', function () {
     }
   }
 
-  it('should run quickhull on demand (stacking points)', function () {
-    var cp = new quickHull();
-    var limit = 10;
-    var i;
-    for (i = 0; i < limit; i += 1) {
-      cp.points.push([rand(limit), rand(limit), rand(limit)]);
-    }
-    cp.quickHull();
-    for (i = 0; i < limit; i += 1) {
-      cp.points.push([rand(limit), rand(limit), rand(limit)]);
-    }
-    cp.quickHull();
-  });
-
   describe('should compute the quickhull of a set of 3d points', function () {
+    it('should run quickhull on demand (stacking points)', function () {
+      var cp = new quickHull();
+      var limit = 10;
+      var i;
+      for (i = 0; i < limit; i += 1) {
+        cp.points.push([rand(limit), rand(limit), rand(limit)]);
+      }
+      cp.quickHull();
+      for (i = 0; i < limit; i += 1) {
+        cp.points.push([rand(limit), rand(limit), rand(limit)]);
+      }
+      cp.quickHull();
+    });
+
     it('case: tetrahedron', function () {
       var points = [
         [0, 1, 0], [1, -1, 1], [-1, -1, 1], [0, -1, -1]
@@ -121,18 +127,20 @@ describe('QuickHull', function () {
       ]);
     });
 
-    it('case: box', function () {
+    it('case: box (no triangulation)', function () {
       var points = [
         [0,0,0], [1,0,0], [0,1,0], [0,0,1],
         [1,1,0], [1,0,1], [0,1,1], [1,1,1]
       ];
-      var faces = quickHull.run(points);
-      expect(faces.length).equals(12);
+      var faces = quickHull.run(points, {
+        avoidTriangulation: true
+      });
+      expect(faces.length).equals(6);
       cantSeePoint(points, faces, [0.5,0.5,0.5]);
       equalIndexes(faces, [
-        [0,2,1], [1,2,4], [3,5,7], [3,7,6],
-        [0,3,2], [2,3,6], [1,7,5], [4,7,1],
-        [2,7,4], [2,6,7], [0,1,3], [1,5,3]
+        [6,2,0,3], [1,4,7,5],
+        [6,7,4,2], [3,0,1,5],
+        [5,7,6,3], [0,2,4,1]
       ]);
 
       // random
@@ -144,13 +152,47 @@ describe('QuickHull', function () {
         ]);
       }
 
+      faces = quickHull.run(points, {
+        avoidTriangulation: true
+      });
+      expect(faces.length).equals(6);
+      cantSeePoint(points, faces, [0.5,0.5,0.5]);
+      equalIndexes(faces, [
+        [6,2,0,3], [1,4,7,5],
+        [6,7,4,2], [3,0,1,5],
+        [5,7,6,3], [0,2,4,1]
+      ]);
+    });
+
+    it('case: box', function () {
+      var points = [
+        [0,0,0], [1,0,0], [0,1,0], [0,0,1],
+        [1,1,0], [1,0,1], [0,1,1], [1,1,1]
+      ];
+      var faces = quickHull.run(points);
+      expect(faces.length).equals(12);
+      cantSeePoint(points, faces, [0.5,0.5,0.5]);
+      equalIndexes(faces, [
+        [0,2,4], [1,0,4], [0,1,5], [0,5,3],
+        [0,3,6], [0,6,2], [6,7,4], [6,4,2],
+        [6,3,5], [6,5,7], [4,7,5], [4,5,1]
+      ]);
+
+      // random
+      for (var i = 0; i < 100; i += 1) {
+        points.push([
+          Math.random() * 0.99,
+          Math.random() * 0.99,
+          Math.random() * 0.99
+        ]);
+      }
       faces = quickHull.run(points);
       expect(faces.length).equals(12);
       cantSeePoint(points, faces, [0.5,0.5,0.5]);
       equalIndexes(faces, [
-        [0,2,1], [1,2,4], [3,5,7], [3,7,6],
-        [0,3,2], [2,3,6], [1,7,5], [4,7,1],
-        [2,7,4], [2,6,7], [0,1,3], [1,5,3]
+        [0,2,4], [1,0,4], [0,1,5], [0,5,3],
+        [0,3,6], [0,6,2], [6,7,4], [6,4,2],
+        [6,3,5], [6,5,7], [4,7,5], [4,5,1]
       ]);
     });
 
@@ -162,9 +204,9 @@ describe('QuickHull', function () {
       expect(faces.length).equals(4);
       equalIndexes(faces, [
         // -z
-        [0,2,3], [1,0,3],
+        [2,3,1], [2,1,0],
         // +z
-        [1,2,0], [1,3,2]
+        [0,1,3], [0,3,2]
       ]);
 
       // random
@@ -179,9 +221,9 @@ describe('QuickHull', function () {
       expect(faces.length).equals(4);
       equalIndexes(faces, [
         // -z
-        [0,2,3], [1,0,3],
+        [2,3,1], [2,1,0],
         // +z
-        [1,2,0], [1,3,2]
+        [0,1,3], [0,3,2]
       ]);
     });
 
@@ -200,6 +242,11 @@ describe('QuickHull', function () {
 
     describe('sparse', function () {
 
+      /**
+       * Checks that all the faces that form part of the hull can't see other points
+       * @param points
+       * @param faces
+       */
       function checkFaces(points, faces) {
         var i, q, n = points.length;
         for (i = 0; i < faces.length; i += 1) {
@@ -280,7 +327,7 @@ describe('QuickHull', function () {
                 }
               }
               if (!cnt) {
-                bruteForce.push(face.indices);
+                bruteForce.push(face.edge.collect());
               }
 
               // with inverted direction
@@ -293,7 +340,7 @@ describe('QuickHull', function () {
                 }
               }
               if (!cnt) {
-                bruteForce.push(face.indices);
+                bruteForce.push(face.edge.collect());
               }
             }
           }

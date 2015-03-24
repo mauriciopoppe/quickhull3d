@@ -15,7 +15,7 @@ Helpful implementation material:
 Todo:
 
 [x] HalfEdge representation of the edges
-[ ] Face merge as described in Dirk Gregorious' presentation
+[ ] Face merge as described in Dirk Gregorius' presentation
 
 ## Demo
 

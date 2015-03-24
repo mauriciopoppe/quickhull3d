@@ -15,11 +15,11 @@ Helpful implementation material:
 Todo:
 
 [x] HalfEdge representation of the edges
-[ ] Face merge as described in Dirk Gregorius' presentation
+[x] `Face merge` as described in Dirk Gregorius' presentation
 
 ## Demo
 
-http://requirebin.com/?gist=ca949bc768ef9cc60473
+[![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=ca949bc768ef9cc60473)
 
 ## Usage
 
@@ -79,10 +79,11 @@ $ npm install --save quickhull3d
 var QuickHull3d = require('quickhull3d')
 ```
 
-#### `QuickHull3d.run(points)`
+#### `QuickHull3d.run(points, options)`
 
 **params**
 * `points` an array of 3d points whose convex hull needs to be computed
+* `options` (optional) options passed to `QuickHull3d.prototype.quickHull`
 
 **returns** An array of 3 element arrays, each subarray has the indices of 3 points which form a face whose
 normal points outside the polyhedra
@@ -107,7 +108,12 @@ normal points outside the polyhedra
 * `face:destroy(face)` fired when a face is destroyed
   * `face` an instance of the `Face3` class
 
-#### `instance.quickHull()`
+#### `instance.quickHull(options)`
+
+**params**
+* `options` (optional) Configuration options for the computation
+ * `options.avoidTriangulation` {Boolean} (default=`false`) Set it to true to return merged faces as
+ they are, e.g. a face with 5 indices will be split into 3 triangles if `avoidTriangulation=false`
 
 Computes the quickhull of all the points stored in the instance
 
@@ -132,8 +138,8 @@ fired by instances of `QuickHull3d`
 **properties**
 * `id` {number}
 * `destroyed` {Boolean} True if the face is not part of the convex hull 
-* `indices` {Array} The params `i,j,k` are saved here
-* `neighbors` {Face3[]} The neighbors of this face (which are also faces) in counter-clockwise order
+* `edge` {HalfEdge} An instance of the `HalfEdge` class, holds a pointer to the next and previous half edges
+that form part of the face, since it's implemented as a double linked list random access works in `O(n)`
 * `normal` {vec3} The normal of the plane defined by the vectors (`points[j] - points[i]` and `points[k] - points[i]`)
 * `maxDistance` {number} signed distance of the furthest point this face can see
 * `signedDistanceToOrigin` {number} signed distance from the origin to the half plane which has the face,

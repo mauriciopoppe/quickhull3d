@@ -10,7 +10,7 @@ var QuickHull3d = require('../index');
 var fs = require('fs');
 
 var arr = ['100'
-  , '1000', '10000', '100000', '200000'
+  , '1000', '10000', '100000'
 ];
 arr.forEach(function (n) {
   var data = fs.readFileSync('./points' + n + '.json');

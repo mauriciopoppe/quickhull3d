@@ -14,8 +14,8 @@ Helpful implementation material:
 
 Todo:
 
-[x] HalfEdge representation of the edges
-[x] `Face merge` as described in Dirk Gregorius' presentation
+- [x] HalfEdge representation of the edges
+- [x] `Face merge` as described in Dirk Gregorius' presentation
 
 ## Demo
 

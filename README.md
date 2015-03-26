@@ -14,7 +14,7 @@ Helpful implementation material:
 
 Todo:
 
-- [x] HalfEdge representation of the edges
+- [x] Face representation using the `HalfEdge` data structure
 - [x] `Face merge` as described in Dirk Gregorius' presentation
 
 ## Demo
@@ -101,8 +101,6 @@ normal points outside the polyhedra
 * `faceStore` (private) an instance of the class `Face3Store`
 
 **events**
-* `initialTetrahedron(faces)` fired when the initial tetrahedron is built
-  * `faces` an array of arrays which correspond to the indices of the points that are part of the initial tetrahedron
 * `face:create(face)` fired when a face is created
   * `face` an instance of the `Face3` class
 * `face:destroy(face)` fired when a face is destroyed

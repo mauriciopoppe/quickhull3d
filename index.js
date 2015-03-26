@@ -15,7 +15,7 @@ var EventEmitter = require('events').EventEmitter;
 
 var vec3 = glMatrix.vec3;
 var utils = require('./lib/utils');
-var Face3Store = require('./lib/Face3Store');
+var FaceStore = require('./lib/FaceStore');
 var Constants = require('./lib/Constants');
 
 /**
@@ -39,7 +39,7 @@ var Constants = require('./lib/Constants');
 function CloudPoint(points) {
   EventEmitter.call(this);
   this.points = points || [];
-  this.faceStore = new Face3Store(this);
+  this.faceStore = new FaceStore(this);
 }
 
 CloudPoint.prototype = Object.create(EventEmitter.prototype);
@@ -49,7 +49,6 @@ CloudPoint.prototype.quickHull = function (options) {
   var i, j, F_LENGTH;
   assert(this.points.length >= 4, 'quickHull needs at least 4 points to work with');
 
-  this.computeEPS();
   var extremes = this.computeExtremes();
   var initialIndices = this.computeInitialIndices(extremes);
   var tetrahedron = this.computeInitialTetrahedron(extremes);
@@ -58,42 +57,23 @@ CloudPoint.prototype.quickHull = function (options) {
   // the final faces are the initial faces for now
   var facesToCheck = tetrahedron.slice();
   var faces = this.cull(facesToCheck);
-  var result = [];
+  var results = [];
 
-  // <debug>
-  //var i;
-  //for (i = 0; i < result.length; i += 1) {
-  //  assert(result[i].visibleIndices.length === 0);
-  //}
-  //</debug>
   // enable garbage collection on the faces that are not in the store
   this.faceStore.reset();
+
+  // build results based on the options
   for (i = 0, F_LENGTH = faces.length; i < F_LENGTH; i += 1) {
-    var indices = faces[i].edge.collect();
+    var indices = faces[i].vertexIndexCollection;
     if (options.avoidTriangulation) {
-      result.push(indices);
+      results.push(indices);
     } else {
       for (j = 1; j < indices.length - 1; j += 1) {
-        result.push([indices[0], indices[j], indices[j + 1]]);
+        results.push([indices[0], indices[j], indices[j + 1]]);
       }
     }
   }
-  return result;
-};
-
-CloudPoint.prototype.computeEPS = function () {
-  var points = this.points;
-  var P_LENGTH = points.length;
-  var max = [0,0,0];
-  var i, j;
-  for (i = 0; i < P_LENGTH; i += 1) {
-    for (j = 0; j < 3; j += 1) {
-      max[i] = Math.max(max[i], Math.abs(points[i][j]));
-    }
-  }
-
-  // described in page 77 of Dirk Gregorius' presentation
-  Constants.EPS = 3 * (max[0] + max[1] + max[2]) * Constants.DOUBLE_EPS;
+  return results;
 };
 
 CloudPoint.prototype.computeExtremes = function () {
@@ -146,6 +126,14 @@ CloudPoint.prototype.computeExtremes = function () {
     }
   }
 
+  // eps
+  Constants.EPS = 0;
+  for (i = 0; i < 3; i += 1) {
+    Constants.EPS += points[axisAlignedExtremes[i + 3]][i] -
+      points[axisAlignedExtremes[i]][i];
+  }
+  Constants.EPS = 3 * Constants.EPS * Constants.DOUBLE_EPS;
+
   // find the most distant point to the segment (v0,v1)
   // such a point is one of the extremes already found
   maxDistance = -1;
@@ -175,11 +163,7 @@ CloudPoint.prototype.computeExtremes = function () {
     }
   }
 
-  var results = [v0, v1, v2, v3];
-  for (i = 0; i < 4; i += 1) {
-    assert(typeof results[i] === 'number');
-  }
-  return results;
+  return [v0, v1, v2, v3];
 };
 
 CloudPoint.prototype.computeInitialTetrahedron = function (extremes, indices) {
@@ -194,7 +178,6 @@ CloudPoint.prototype.computeInitialTetrahedron = function (extremes, indices) {
   var ad = vec3.create();
   var normal = vec3.create();
 
-  var i;
   // Taken from http://everything2.com/title/How+to+paint+a+tetrahedron
   //
   //                              v2
@@ -248,14 +231,10 @@ CloudPoint.prototype.computeInitialTetrahedron = function (extremes, indices) {
   }
 
   // double link between twins created on updateTwins, no need to call it many times
-  left.updateTwins(bottom, right, back);
-  bottom.updateTwins(back, right);
-  right.updateTwins(back);
+  left.updateTwins(right, bottom, back);
+  right.updateTwins(bottom, back);
+  bottom.updateTwins(back);
 
-  // args: Array[] the indices of the points of each initial face
-  me.emit('initialTetrahedron', tetrahedron.map(function (face) {
-    return face.edge.collect();
-  }));
   return tetrahedron;
 };
 
@@ -292,6 +271,48 @@ CloudPoint.prototype.computeInitialIndices = function (extremes) {
   return initialIndices;
 };
 
+CloudPoint.prototype.computeHorizon = function (initialFace, point) {
+  var me = this;
+  var visibleFaces = [];
+  var horizonEdges = [];
+
+  debug('horizon start %j', point);
+  function dfs(face, startEdge) {
+    var nextFace;
+    var it = startEdge;
+
+    face.destroy();
+    me.emit('face:destroy', face);
+    visibleFaces.push(face);
+
+    do {
+      assert(it.twin);
+      nextFace = it.twin.face;
+      if (!nextFace.destroyed) {
+        if (vec3.dot(point, nextFace.normal) > nextFace.signedDistanceToOrigin) {
+          // the face is able to see the point
+          dfs(nextFace, it.twin);
+        } else {
+          // if the new face can't be seen that means we have found an edge
+          // that is part of the horizon, common edge is an array with the indexes
+          // of the points that are part of the edge
+          horizonEdges.push(it);
+        }
+      }
+
+      it = it.next;
+    } while (it !== startEdge);
+  }
+
+  //console.log(initialFace.vertexIndexCollection);
+  dfs(initialFace, initialFace.edge);
+
+  return {
+    horizonEdges: horizonEdges,
+    visibleFaces: visibleFaces
+  };
+};
+
 CloudPoint.prototype.cull = function (facesToCheck) {
   var me = this;
   var points = this.points;
@@ -315,8 +336,8 @@ CloudPoint.prototype.cull = function (facesToCheck) {
   while (facesToCheck.length) {
     currentFace = facesToCheck.shift();
     debug('== iteration ==');
-    //debug('current face=%d, vertices=%j, visibleIndices=%j',
-    //  currentFace.id, currentFace.edge.collect(), currentFace.visibleIndices);
+    debug('current face=%d, vertices=%j, visibleIndices=%j',
+      currentFace.id, currentFace.vertexIndexCollection, currentFace.visibleIndices);
 
     assert(currentFace.visibleIndices);
     if (!currentFace.destroyed && currentFace.visibleIndices.length) {
@@ -326,7 +347,7 @@ CloudPoint.prototype.cull = function (facesToCheck) {
       debug('\tpoint index to join edges=%d', pointIndex);
 
       // compute the visible faces and the horizon edges
-      tuple = this.faceStore.computeHorizon(currentFace, points[pointIndex]);
+      tuple = this.computeHorizon(currentFace, points[pointIndex]);
       //debug('\ttuple edges=%j faces=%j', tuple.edges, tuple.visibleFaces.map(function (face) { return face.id }));
       visibleFaces = tuple.visibleFaces;
       horizonEdges = tuple.horizonEdges;
@@ -347,31 +368,27 @@ CloudPoint.prototype.cull = function (facesToCheck) {
         edge = horizonEdges[i];
         // since every face is created using the right hand rule there's no need
         // to check where the normal of this face is pointing to
-        newFace = this.faceStore.create(points, edge.indices[0], edge.indices[1], pointIndex);
+        newFace = this.faceStore.create(points, edge.prev.vertex, edge.vertex, pointIndex);
         newFaces.push(newFace);
       }
 
       for (j = LENGTH - 1, i = 0; i < LENGTH; j = i, i += 1) {
-        var mergeCount = 0;
         newFace = newFaces[i];
         // new face with new face
-        mergeCount += newFaces[j].updateTwins(newFace);
+        newFaces[j].updateTwins(newFace);
         // new face with horizon face (which is accessible through the twin's reference)
         // face merge is done in updateTwins
-        mergeCount += horizonEdges[i].twin.face.updateTwins(newFace);
+        horizonEdges[i].twin.face.updateTwins(newFace);
 
         // only push a new face when there weren't any merges
-        if (mergeCount === 0) {
-          //debug('pushing new face %d, %j', newFace.id, newFace.edge.collect());
-          facesToCheck.push(newFace);
-        }
+        //debug('pushing new face %d, %j', newFace.id, newFace.vertexIndexCollection);
+        facesToCheck.push(newFace);
       }
-
       this.assignIndices(newFaces, indicesToAssign);
     }
   }
 
-  return this.faceStore.getFaces();
+  return this.faceStore.getFacesNotDestroyed();
 };
 
 module.exports = CloudPoint;
@@ -380,4 +397,4 @@ module.exports.run = function (points, options) {
   return new CloudPoint(points).quickHull(options);
 };
 
-module.exports.Face3 = require('./lib/Face3');
+module.exports.Face = require('./lib/Face');

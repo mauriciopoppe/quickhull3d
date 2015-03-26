@@ -6,12 +6,12 @@ var assert = require('assert');
 
 var quickHull = require('../index');
 var utils = require('../lib/utils');
-var Face3 = require('../lib/Face3');
+var Face = require('../lib/Face');
 var vec3 = glMatrix.vec3;
 
 describe('QuickHull', function () {
-  function rand(randLimit) {
-    return -randLimit + Math.random() * 2 * randLimit;
+  function rand(randLimxit) {
+    return -randLimxit + Math.random() * 2 * randLimxit;
   }
 
   function faceShift(f) {
@@ -169,14 +169,16 @@ describe('QuickHull', function () {
         [0,0,0], [1,0,0], [0,1,0], [0,0,1],
         [1,1,0], [1,0,1], [0,1,1], [1,1,1]
       ];
+      var ans = [
+        [1,5,3], [1,3,0], [3,6,2], [3,2,0],
+        [2,4,1], [2,1,0], [3,5,7], [3,7,6],
+        [7,4,2], [7,2,6], [7,5,1], [7,1,4]
+      ];
+
       var faces = quickHull.run(points);
       expect(faces.length).equals(12);
       cantSeePoint(points, faces, [0.5,0.5,0.5]);
-      equalIndexes(faces, [
-        [0,2,4], [1,0,4], [0,1,5], [0,5,3],
-        [0,3,6], [0,6,2], [6,7,4], [6,4,2],
-        [6,3,5], [6,5,7], [4,7,5], [4,5,1]
-      ]);
+      equalIndexes(faces, ans);
 
       // random
       for (var i = 0; i < 100; i += 1) {
@@ -189,25 +191,22 @@ describe('QuickHull', function () {
       faces = quickHull.run(points);
       expect(faces.length).equals(12);
       cantSeePoint(points, faces, [0.5,0.5,0.5]);
-      equalIndexes(faces, [
-        [0,2,4], [1,0,4], [0,1,5], [0,5,3],
-        [0,3,6], [0,6,2], [6,7,4], [6,4,2],
-        [6,3,5], [6,5,7], [4,7,5], [4,5,1]
-      ]);
+      equalIndexes(faces, ans);
     });
 
     it('case: 2d square', function () {
       var points = [
         [0,0,0], [1,0,0], [0,1,0], [1,1,0]
       ];
+      var ans = [
+        // -z
+        [3,1,0], [3,0,2],
+        // +z
+        [1,3,2], [1,2,0]
+      ];
       var faces = quickHull.run(points);
       expect(faces.length).equals(4);
-      equalIndexes(faces, [
-        // -z
-        [2,3,1], [2,1,0],
-        // +z
-        [0,1,3], [0,3,2]
-      ]);
+      equalIndexes(faces, ans);
 
       // random
       for (var i = 0; i < 100; i += 1) {
@@ -219,12 +218,7 @@ describe('QuickHull', function () {
       }
       faces = quickHull.run(points);
       expect(faces.length).equals(4);
-      equalIndexes(faces, [
-        // -z
-        [2,3,1], [2,1,0],
-        // +z
-        [0,1,3], [0,3,2]
-      ]);
+      equalIndexes(faces, ans);
     });
 
     it('case: octahedron', function () {
@@ -241,7 +235,6 @@ describe('QuickHull', function () {
     });
 
     describe('sparse', function () {
-
       /**
        * Checks that all the faces that form part of the hull can't see other points
        * @param points
@@ -317,7 +310,7 @@ describe('QuickHull', function () {
         for (i = 0; i < n; i += 1) {
           for (j = i + 1; j < n; j += 1) {
             for (k = j + 1; k < n; k += 1) {
-              var face = new Face3(points, i, j, k);
+              var face = new Face(points, i, j, k);
               // with normal direction
               var cnt = 0;
               for (q = 0; !cnt && q < n; q += 1) {
@@ -327,7 +320,7 @@ describe('QuickHull', function () {
                 }
               }
               if (!cnt) {
-                bruteForce.push(face.edge.collect());
+                bruteForce.push(face.vertexIndexCollection);
               }
 
               // with inverted direction
@@ -340,7 +333,7 @@ describe('QuickHull', function () {
                 }
               }
               if (!cnt) {
-                bruteForce.push(face.edge.collect());
+                bruteForce.push(face.vertexIndexCollection);
               }
             }
           }

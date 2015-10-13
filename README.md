@@ -1,4 +1,4 @@
-# QuickHull 3d
+# quickhull3d
 [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
 [![NPM][npm-image]][npm-url]

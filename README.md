@@ -3,6 +3,8 @@
 
 [![NPM][npm-image]][npm-url]
 
+[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
+
 A quickhull implementation for 3d points in `O(n log n)` based on the paper:
 
 - [The Quickhull Algorithm for Convex Hulls](http://www.cise.ufl.edu/~ungor/courses/fall06/papers/QuickHull.pdf)
@@ -21,6 +23,12 @@ Todo:
 
 [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=ca949bc768ef9cc60473)
 
+## Benchmarks
+
+Versus [`convex-hull`](https://www.npmjs.com/package/convex-hull)
+
+[![quickhull3d vs convexhull](https://cloud.githubusercontent.com/assets/1616682/10469408/f72213f2-71d2-11e5-8ec2-fd41bdd8fb04.png)](https://plot.ly/~maurizzzio/36/quickhull3d-vs-convexhull/)
+
 ## Usage
 
 **input** an array of `[x,y,z]` which are coordinates of 3d points
@@ -28,7 +36,7 @@ Todo:
 **output** an array of `[i,j,k]` which are the indices of the points that make a face whose normal points outwards the center of the polyhedra
 
 ```javascript
-var QuickHull3d = require('quickhull3d');
+var qh = require('quickhull3d');
 var points = [
   [0, 1, 0],
   [1, -1, 1],
@@ -36,7 +44,7 @@ var points = [
   [0, -1, -1]
 ];
 
-QuickHull3d.run(points)
+qh(points)
 // output:
 // [ [ 2, 0, 3 ], [ 0, 1, 3 ], [ 2, 1, 0 ], [ 2, 3, 1 ] ]
 // 1st face:
@@ -49,21 +57,22 @@ QuickHull3d.run(points)
 Using the constructor:
 
 ```javascript
-var QuickHull3d = require('quickhull3d');
+var QuickHull = require('quickhull3d').QuickHull;
 var points = [
   [0, 1, 0],
   [1, -1, 1],
   [-1, -1, 1],
   [0, -1, -1]
 ];
-var instance = new QuickHull3d(points)
+var instance = new QuickHull(points)
 instance.on('face:create', function (face) {
   // see Face3 docs to see the properties of the face
 });
 instance.on('face:destroy', function (face) {
   // see Face3 docs to see the properties of the face
 });
-instance.quickHull();
+// computes the quickhull
+instance.run();
 ```
 
 
@@ -76,21 +85,21 @@ $ npm install --save quickhull3d
 ## API
 
 ```javascript
-var QuickHull3d = require('quickhull3d')
+var qh = require('quickhull3d')
 ```
 
-#### `QuickHull3d.run(points, options)`
+#### `qh(points, options)`
 
 **params**
 * `points` an array of 3d points whose convex hull needs to be computed
-* `options` (optional) options passed to `QuickHull3d.prototype.quickHull`
+* `options` (optional) options passed to `QuickHull.prototype.run`
 
 **returns** An array of 3 element arrays, each subarray has the indices of 3 points which form a face whose
 normal points outside the polyhedra
 
 ### Constructor
 
-#### `instance = new QuickHull3d([points])`
+#### `instance = new qh.QuickHull([points])`
 **extends** `EventEmitter`
 
 **params**
@@ -110,7 +119,7 @@ normal points outside the polyhedra
 
 **params**
 * `options` (optional) Configuration options for the computation
- * `options.avoidTriangulation` {Boolean} (default=`false`) Set it to true to return merged faces as
+ * `options.skipTriangulation` {Boolean} (default=`false`) Set it to true to return merged faces as
  they are, e.g. a face with 5 indices will be split into 3 triangles if `avoidTriangulation=false`
 
 Computes the quickhull of all the points stored in the instance
@@ -122,10 +131,10 @@ normal points outside the polyhedra
 
 ### Face3
 
-#### `instance = new QuickHull3d.Face3(points, i, j, k)`
+#### `instance = new qh.Face3(points, i, j, k)`
 
 You shouldn't call this constructor but it's documented here for reference of the events 
-fired by instances of `QuickHull3d`
+fired by instances of `QuickHull`
 
 **params**
 * `points` {Array[]} 3d points whose convex hull needs to be computed
@@ -149,9 +158,9 @@ Copyright (c) 2015 Mauricio Poppe. Licensed under the MIT license.
 
 [npm-url]: https://npmjs.org/package/quickhull3d
 [npm-image]: https://nodei.co/npm/quickhull3d.png?downloads=true
-[travis-url]: https://travis-ci.org/maurizzzio/QuickHull-3d
-[travis-image]: https://travis-ci.org/maurizzzio/QuickHull-3d.svg?branch=master
-[daviddm-url]: https://david-dm.org/maurizzzio/QuickHull-3d.svg?theme=shields.io
-[daviddm-image]: https://david-dm.org/maurizzzio/QuickHull-3d
-[coveralls-url]: https://coveralls.io/r/maurizzzio/QuickHull-3d
-[coveralls-image]: https://coveralls.io/repos/maurizzzio/QuickHull-3d/badge.svg
+[travis-url]: https://travis-ci.org/maurizzzio/quickhull3d
+[travis-image]: https://travis-ci.org/maurizzzio/quickhull3d.svg?branch=master
+[daviddm-url]: https://david-dm.org/maurizzzio/quickhull3d.svg?theme=shields.io
+[daviddm-image]: https://david-dm.org/maurizzzio/quickhull3d
+[coveralls-url]: https://coveralls.io/r/maurizzzio/quickhull3d
+[coveralls-image]: https://coveralls.io/repos/maurizzzio/quickhull3d/badge.svg

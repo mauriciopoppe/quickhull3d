@@ -21,11 +21,13 @@
   ],
   "dependencies": {
     "debug": "^2.1.2",
-    "gl-matrix": "^2.1.0"
+    "gl-matrix": "^2.1.0",
+    "standard": "^5.3.1"
   },
   "devDependencies": {
     "benchmark": "^1.0.0",
     "chai": "^2.1.1",
+    "convex-hull": "^1.0.3",
     "coveralls": "^2.11.1",
     "gulp": "^3.8.8",
     "gulp-bump": "^0.1.11",
@@ -44,6 +46,12 @@
   },
   "scripts": {
     "coveralls": "gulp istanbul && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "test": "gulp test"
+    "test": "standard && gulp test"
+  },
+  "standard": {
+    "ignore": [
+      "gulp/",
+      "test/"
+    ]
   }
 }

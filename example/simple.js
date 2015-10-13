@@ -6,8 +6,8 @@
  * Licensed under the MIT license.
  */
 
-'use strict';
-var quickHull = require('../index.js');
+'use strict'
+var quickHull = require('../')
 var points = [
   [ -0.8592737372964621, 83.55000647716224, 99.76234347559512 ],
   [ 1.525216130539775, 82.31873814947903, 27.226063096895814 ],
@@ -19,6 +19,6 @@ var points = [
   [ -37.32072818093002, 1.8377598840743303, -12.133228313177824 ],
   [ -92.33389408327639, 5.605767108500004, -13.743493286892772 ],
   [ 64.9183395318687, 52.24619274958968, -61.14645302295685 ]
-];
-var faces = quickHull.run(points);
-console.log(faces);
+]
+var faces = quickHull(points)
+console.log(faces)

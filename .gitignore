@@ -3,6 +3,7 @@
 ### PROJECT
 
 benchmark/points*
+benchmark/upload.js
 
 ### OSX ###
 .DS_Store

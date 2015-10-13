@@ -115,7 +115,7 @@ normal points outside the polyhedra
 * `face:destroy(face)` fired when a face is destroyed
   * `face` an instance of the `Face3` class
 
-#### `instance.quickHull(options)`
+#### `instance.run(options)`
 
 **params**
 * `options` (optional) Configuration options for the computation

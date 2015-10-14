@@ -25,7 +25,30 @@ Todo:
 
 ## Benchmarks
 
+Specs:
+
+```
+MacBook Pro (Retina, Mid 2012)
+2.3 GHz Intel Core i7
+8 GB 1600 MHz DDR3
+NVIDIA GeForce GT 650M 1024 MB
+```
+
 Versus [`convex-hull`](https://www.npmjs.com/package/convex-hull)
+
+```
+// LEGEND: program:numberOfPoints
+quickhull3d:100 x 1,580 ops/sec ±2.12% (85 runs sampled)
+convexhull:100 x 2,379 ops/sec ±0.78% (89 runs sampled)
+quickhull3d:1000 x 477 ops/sec ±1.81% (68 runs sampled)
+convexhull:1000 x 340 ops/sec ±1.70% (83 runs sampled)
+quickhull3d:10000 x 115 ops/sec ±2.51% (68 runs sampled)
+convexhull:10000 x 30.26 ops/sec ±1.20% (54 runs sampled)
+quickhull3d:100000 x 13.68 ops/sec ±1.57% (38 runs sampled)
+convexhull:100000 x 2.26 ops/sec ±7.74% (10 runs sampled)
+quickhull3d:200000 x 9.13 ops/sec ±9.26% (28 runs sampled)
+convexhull:200000 x 1.13 ops/sec ±10.14% (7 runs sampled)
+```
 
 [![quickhull3d vs convexhull](https://cloud.githubusercontent.com/assets/1616682/10469408/f72213f2-71d2-11e5-8ec2-fd41bdd8fb04.png)](https://plot.ly/~maurizzzio/36/quickhull3d-vs-convexhull/)
 

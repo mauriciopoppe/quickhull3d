@@ -58,4 +58,4 @@ suite
   .on('complete', function () {
     fs.writeFileSync('./data/data-v3.json', JSON.stringify(data) + '\n')
   })
-  .run()
+  .run({ async: true })

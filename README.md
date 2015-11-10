@@ -21,7 +21,7 @@ Todo:
 
 ## Demo
 
-[![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=ca949bc768ef9cc60473)
+[![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=9b19fccfa670c9e2597b)
 
 ## Benchmarks
 

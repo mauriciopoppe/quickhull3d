@@ -270,7 +270,6 @@ QuickHull.prototype.computeInitialIndices = function (extremes) {
 }
 
 QuickHull.prototype.computeHorizon = function (initialFace, point) {
-  var me = this
   var visibleFaces = []
   var horizonEdges = []
 
@@ -278,7 +277,7 @@ QuickHull.prototype.computeHorizon = function (initialFace, point) {
   function dfs (face, startEdge) {
     var nextFace
     var it = startEdge
-    
+
     face.visited = true
     visibleFaces.push(face)
 
@@ -388,7 +387,7 @@ QuickHull.prototype.cull = function (facesToCheck) {
         faceRight = newFaces[i]
         face.computeTwinEdge(faceRight)
         if (!face.mergeAttempt(faceRight)) {
-          j = i 
+          j = i
         }
       }
 

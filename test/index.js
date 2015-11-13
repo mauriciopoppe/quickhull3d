@@ -8,6 +8,7 @@ var quickHull = require('../')
 var utils = require('../lib/utils')
 var Face = require('../lib/Face')
 var vec3 = glMatrix.vec3
+var EPS = 1e-6
 
 describe('QuickHull', function () {
   function rand (randLimxit) {
@@ -78,162 +79,163 @@ describe('QuickHull', function () {
         points[c],
         p
       )).equals(false)
+      }
     }
-  }
 
-  describe('should compute the quickhull of a set of 3d points', function () {
-    it('should run quickhull on demand (stacking points)', function () {
-      var cp = new quickHull.QuickHull()
-      var limit = 10
-      var i
-      for (i = 0; i < limit; i += 1) {
-        cp.points.push([rand(limit), rand(limit), rand(limit)])
-      }
-      cp.run()
-      for (i = 0; i < limit; i += 1) {
-        cp.points.push([rand(limit), rand(limit), rand(limit)])
-      }
-      cp.run()
-    })
-
-    it('case: tetrahedron', function () {
-      var points = [
-        [0, 1, 0], [1, -1, 1], [-1, -1, 1], [0, -1, -1]
-      ]
-      var faces = quickHull(points)
-      cantSeePoint(points, faces, [0, 0, 0])
-      equalIndexes(faces, [
-        [0, 2, 1], [0, 3, 2], [0, 1, 3], [1, 2, 3]
-      ])
-
-      function r1 () {
-        return Math.random() > 0.5 ? 1 : -1
-      }
-
-      // random
-      var a, b, c
-      for (var i = 0; i < 100; i += 1) {
-        a = Math.random()
-        b = Math.random()
-        c = 1 - a - b
-        if (c > 0) {
-          points.push([[a * r1(), b * r1(), c * r1()]])
+    describe('should compute the quickhull of a set of 3d points', function () {
+      it('should run quickhull on demand (stacking points)', function () {
+        var cp = new quickHull.QuickHull()
+        var limit = 10
+        var i
+        for (i = 0; i < limit; i += 1) {
+          cp.points.push([rand(limit), rand(limit), rand(limit)])
         }
-      }
-      faces = quickHull(points)
-      cantSeePoint(points, faces, [0, 0, 0])
-      equalIndexes(faces, [
-        [0, 2, 1], [0, 3, 2], [0, 1, 3], [1, 2, 3]
-      ])
-    })
-
-    it('case: box (no triangulation)', function () {
-      var points = [
-        [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1],
-        [1, 1, 0], [1, 0, 1], [0, 1, 1], [1, 1, 1]
-      ]
-      var faces = quickHull(points, {
-        skipTriangulation: true
+        cp.run()
+        for (i = 0; i < limit; i += 1) {
+          cp.points.push([rand(limit), rand(limit), rand(limit)])
+        }
+        cp.run()
       })
-      expect(faces.length).equals(6)
-      cantSeePoint(points, faces, [0.5, 0.5, 0.5])
-      equalIndexes(faces, [
-        [6, 2, 0, 3], [1, 4, 7, 5],
-        [6, 7, 4, 2], [3, 0, 1, 5],
-        [5, 7, 6, 3], [0, 2, 4, 1]
-      ])
 
-      // random
-      for (var i = 0; i < 100; i += 1) {
-        points.push([
-          Math.random() * 0.99,
-          Math.random() * 0.99,
-          Math.random() * 0.99
+      it('case: tetrahedron', function () {
+        var points = [
+          [0, 1, 0], [1, -1, 1], [-1, -1, 1], [0, -1, -1]
+        ]
+        var faces = quickHull(points)
+        cantSeePoint(points, faces, [0, 0, 0])
+        equalIndexes(faces, [
+          [0, 2, 1], [0, 3, 2], [0, 1, 3], [1, 2, 3]
         ])
-      }
 
-      faces = quickHull(points, {
-        skipTriangulation: true
+        function r1 () {
+          return Math.random() > 0.5 ? 1 : -1
+        }
+
+        // random
+        var a, b, c
+        for (var i = 0; i < 100; i += 1) {
+          a = Math.random()
+          b = Math.random()
+          c = 1 - a - b
+          if (c > 0) {
+            points.push([[a * r1(), b * r1(), c * r1()]])
+          }
+        }
+        faces = quickHull(points)
+        cantSeePoint(points, faces, [0, 0, 0])
+        equalIndexes(faces, [
+          [0, 2, 1], [0, 3, 2], [0, 1, 3], [1, 2, 3]
+        ])
       })
-      expect(faces.length).equals(6)
-      cantSeePoint(points, faces, [0.5, 0.5, 0.5])
-      equalIndexes(faces, [
-        [6, 2, 0, 3], [1, 4, 7, 5],
-        [6, 7, 4, 2], [3, 0, 1, 5],
-        [5, 7, 6, 3], [0, 2, 4, 1]
-      ])
-    })
 
-    it('case: box', function () {
-      var points = [
-        [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1],
-        [1, 1, 0], [1, 0, 1], [0, 1, 1], [1, 1, 1]
-      ]
-      var ans = [
-        [1, 5, 3], [1, 3, 0], [3, 6, 2], [3, 2, 0],
-        [2, 4, 1], [2, 1, 0], [3, 5, 7], [3, 7, 6],
-        [7, 4, 2], [7, 2, 6], [7, 5, 1], [7, 1, 4]
-      ]
-
-      var faces = quickHull(points)
-      expect(faces.length).equals(12)
-      cantSeePoint(points, faces, [0.5, 0.5, 0.5])
-      equalIndexes(faces, ans)
-
-      // random
-      for (var i = 0; i < 100; i += 1) {
-        points.push([
-          Math.random() * 0.99,
-          Math.random() * 0.99,
-          Math.random() * 0.99
+      it('case: box (no triangulation)', function () {
+        var points = [
+          [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1],
+          [1, 1, 0], [1, 0, 1], [0, 1, 1], [1, 1, 1]
+        ]
+        var faces = quickHull(points, {
+          skipTriangulation: true
+        })
+        expect(faces.length).equals(6)
+        cantSeePoint(points, faces, [0.5, 0.5, 0.5])
+        equalIndexes(faces, [
+          [6, 2, 0, 3], [1, 4, 7, 5],
+          [6, 7, 4, 2], [3, 0, 1, 5],
+          [5, 7, 6, 3], [0, 2, 4, 1]
         ])
-      }
-      faces = quickHull(points)
-      expect(faces.length).equals(12)
-      cantSeePoint(points, faces, [0.5, 0.5, 0.5])
-      equalIndexes(faces, ans)
-    })
 
-    it('case: 2d square', function () {
-      var points = [
-        [0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0]
-      ]
-      var ans = [
-        // -z
-        [3, 1, 0], [3, 0, 2],
-        // +z
-        [1, 3, 2], [1, 2, 0]
-      ]
-      var faces = quickHull(points)
-      expect(faces.length).equals(4)
-      equalIndexes(faces, ans)
+        // random
+        for (var i = 0; i < 100; i += 1) {
+          points.push([
+            Math.random() * 0.99,
+            Math.random() * 0.99,
+            Math.random() * 0.99
+          ])
+        }
 
-      // random
-      for (var i = 0; i < 100; i += 1) {
-        points.push([
-          Math.random() * 0.99,
-          Math.random() * 0.99,
-          0
+        faces = quickHull(points, {
+          skipTriangulation: true
+        })
+        expect(faces.length).equals(6)
+        cantSeePoint(points, faces, [0.5, 0.5, 0.5])
+        equalIndexes(faces, [
+          [6, 2, 0, 3], [1, 4, 7, 5],
+          [6, 7, 4, 2], [3, 0, 1, 5],
+          [5, 7, 6, 3], [0, 2, 4, 1]
         ])
-      }
-      faces = quickHull(points)
-      expect(faces.length).equals(4)
-      equalIndexes(faces, ans)
-    })
+      })
 
-    it('case: octahedron', function () {
-      var points = [
-        [1, 0, 0], [0, 1, 0], [0, 0, 1],
-        [-1, 0, 0], [0, -1, 0], [0, 0, -1]
-      ]
-      var faces = quickHull(points)
-      expect(faces.length).equals(8)
-      equalIndexes(faces, [
-        [0, 1, 2], [0, 2, 4], [0, 5, 1], [0, 4, 5],
-        [3, 2, 1], [3, 1, 5], [3, 4, 2], [3, 5, 4]
-      ])
-    })
+      it('case: box', function () {
+        var points = [
+          [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1],
+          [1, 1, 0], [1, 0, 1], [0, 1, 1], [1, 1, 1]
+        ]
+        var ans = [
+          [1, 5, 3], [1, 3, 0], [3, 6, 2], [3, 2, 0],
+          [2, 4, 1], [2, 1, 0], [3, 5, 7], [3, 7, 6],
+          [7, 4, 2], [7, 2, 6], [7, 5, 1], [7, 1, 4]
+        ]
 
+        var faces = quickHull(points)
+        expect(faces.length).equals(12)
+        cantSeePoint(points, faces, [0.5, 0.5, 0.5])
+        equalIndexes(faces, ans)
+
+        // random
+        for (var i = 0; i < 100; i += 1) {
+          points.push([
+            Math.random() * 0.99,
+            Math.random() * 0.99,
+            Math.random() * 0.99
+          ])
+        }
+        faces = quickHull(points)
+        expect(faces.length).equals(12)
+        cantSeePoint(points, faces, [0.5, 0.5, 0.5])
+        equalIndexes(faces, ans)
+      })
+
+      it('case: 2d square', function () {
+        var points = [
+          [0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0]
+        ]
+        var ans = [
+          // -z
+          [3, 1, 0], [3, 0, 2],
+          // +z
+          [1, 3, 2], [1, 2, 0]
+        ]
+        var faces = quickHull(points)
+        expect(faces.length).equals(4)
+        equalIndexes(faces, ans)
+
+        // random
+        for (var i = 0; i < 100; i += 1) {
+          points.push([
+            Math.random() * 0.99,
+            Math.random() * 0.99,
+            0
+          ])
+        }
+        faces = quickHull(points)
+        expect(faces.length).equals(4)
+        equalIndexes(faces, ans)
+      })
+
+      it('case: octahedron', function () {
+        var points = [
+          [1, 0, 0], [0, 1, 0], [0, 0, 1],
+          [-1, 0, 0], [0, -1, 0], [0, 0, -1]
+        ]
+        var faces = quickHull(points)
+        expect(faces.length).equals(8)
+        equalIndexes(faces, [
+          [0, 1, 2], [0, 2, 4], [0, 5, 1], [0, 4, 5],
+          [3, 2, 1], [3, 1, 5], [3, 4, 2], [3, 5, 4]
+        ])
+      })
+
+    })
     describe('sparse', function () {
       /**
        * Checks that all the faces that form part of the hull can't see other points
@@ -251,17 +253,31 @@ describe('QuickHull', function () {
           var distance = vec3.dot(normal, points[faces[i][0]])
           for (q = 0; q < n; q += 1) {
             if (faces[i].indexOf(q) === -1) {
-              var prod = vec3.dot(points[q], normal) <= distance
+              var prod = vec3.dot(points[q], normal) <= distance + EPS
               if (!prod) {
-                console.log('points', points)
-                console.log(faces[i], q)
-                console.log(vec3.dot(points[q], normal), distance)
+                console.error('points', points)
+                console.error(faces[i], q)
+                console.error(vec3.dot(points[q], normal), distance)
               }
-              expect(vec3.dot(points[q], normal) <= distance).equals(true)
+              expect(prod).equals(true)
             }
           }
         }
       }
+
+      it('case: #2', function () {
+        var points = [
+          [ 104, 216, 53 ],
+          [ 104, 217, 52 ],
+          [ 105, 216, 52 ],
+          [ 88, 187, 43 ],
+          [ 89, 187, 44 ],
+          [ 89, 188, 43 ],
+          [ 90, 187, 43 ]
+        ]
+        var faces = quickHull(points)
+        checkFaces(points, faces)
+      })
 
       it('case: predefined', function () {
         var points = [
@@ -315,7 +331,7 @@ describe('QuickHull', function () {
               var cnt = 0
               for (q = 0; !cnt && q < n; q += 1) {
                 if (i !== q && j !== q && k !== q &&
-                  vec3.dot(points[q], face.normal) >= face.signedDistanceToOrigin) {
+                    vec3.dot(points[q], face.normal) >= face.signedDistanceToOrigin) {
                   ++cnt
                 }
               }
@@ -328,7 +344,7 @@ describe('QuickHull', function () {
               face.invert()
               for (q = 0; !cnt && q < n; q += 1) {
                 if (i !== q && j !== q && k !== q &&
-                  vec3.dot(points[q], face.normal) >= face.signedDistanceToOrigin) {
+                    vec3.dot(points[q], face.normal) >= face.signedDistanceToOrigin) {
                   ++cnt
                 }
               }
@@ -347,4 +363,3 @@ describe('QuickHull', function () {
       })
     })
   })
-})

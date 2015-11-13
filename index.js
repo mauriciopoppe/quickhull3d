@@ -226,10 +226,10 @@ QuickHull.prototype.computeInitialTetrahedron = function (extremes, indices) {
     tetrahedron[3].invert()
   }
 
-  // double link between twins created on updateTwins, no need to call it many times
-  left.updateTwins(right, bottom, back)
-  right.updateTwins(bottom, back)
-  bottom.updateTwins(back)
+  // double link between twins created on `computeTwinEdge`, no need to call it many times
+  left.computeTwinEdge(right, bottom, back)
+  right.computeTwinEdge(bottom, back)
+  bottom.computeTwinEdge(back)
 
   return tetrahedron
 }
@@ -278,15 +278,14 @@ QuickHull.prototype.computeHorizon = function (initialFace, point) {
   function dfs (face, startEdge) {
     var nextFace
     var it = startEdge
-
-    face.destroy()
-    me.emit('face:destroy', face)
+    
+    face.visited = true
     visibleFaces.push(face)
 
     do {
-      assert(it.twin)
+      assert(it.twin, "edge doesn't have a twin edge")
       nextFace = it.twin.face
-      if (!nextFace.destroyed) {
+      if (!nextFace.visited) {
         if (vec3.dot(point, nextFace.normal) > nextFace.signedDistanceToOrigin) {
           // the face is able to see the point
           dfs(nextFace, it.twin)
@@ -302,7 +301,6 @@ QuickHull.prototype.computeHorizon = function (initialFace, point) {
     } while (it !== startEdge)
   }
 
-  // console.log(initialFace.vertexIndexCollection)
   dfs(initialFace, initialFace.edge)
 
   return {
@@ -313,19 +311,19 @@ QuickHull.prototype.computeHorizon = function (initialFace, point) {
 
 QuickHull.prototype.cull = function (facesToCheck) {
   var points = this.points
-  var currentFace, i, j, edge, newFace, LENGTH
+  var currentFace, i, j, edge, face, LENGTH
+  var faceRight, faceBelow
   var tuple
   var visibleFaces, horizonEdges
   var indicesToAssign, pointIndex
 
-  function gatherIndicesFromFaces (faces) {
+  function gatherIndicesFromVisibleFaces (faces) {
     var i
     var FACES_LENGTH = faces.length
     var indexes = []
     for (i = 0; i < FACES_LENGTH; i += 1) {
-      assert(faces[i].destroyed)
       indexes = indexes.concat(faces[i].visibleIndices)
-      faces[i].visibleIndices = []
+      faces[i].destroy()
     }
     return indexes
   }
@@ -333,15 +331,14 @@ QuickHull.prototype.cull = function (facesToCheck) {
   while (facesToCheck.length) {
     currentFace = facesToCheck.shift()
     debug('== iteration ==')
-    debug('current face=%d, vertices=%j, visibleIndices=%j',
-      currentFace.id, currentFace.vertexIndexCollection, currentFace.visibleIndices)
+    debug('current face=%d, destroyed?=%j vertices=%j, visibleIndices=%j',
+      currentFace.id, currentFace.destroyed, currentFace.vertexIndexCollection, currentFace.visibleIndices)
 
-    assert(currentFace.visibleIndices)
     if (!currentFace.destroyed && currentFace.visibleIndices.length) {
       // index of the closest point to the current face
       // shift it since it's no longer assignable to the other faces
       pointIndex = currentFace.visibleIndices.shift()
-      debug('\tpoint index to join edges=%d', pointIndex)
+      debug('\tvertex index to join edges=%d', pointIndex)
 
       // compute the visible faces and the horizon edges
       tuple = this.computeHorizon(currentFace, points[pointIndex])
@@ -358,29 +355,44 @@ QuickHull.prototype.cull = function (facesToCheck) {
 
       // from all the visible faces obtain the list of point indexes
       // to distribute them among all the new faces
-      indicesToAssign = gatherIndicesFromFaces(visibleFaces)
+      indicesToAssign = gatherIndicesFromVisibleFaces(visibleFaces)
 
+      // creation of new faces
+      // input: an array of horizon edges
+      // output: a set of faces created with each edge and the visible vertex
       var newFaces = []
       for (i = 0, LENGTH = horizonEdges.length; i < LENGTH; i += 1) {
         edge = horizonEdges[i]
         // since every face is created using the right hand rule there's no need
         // to check where the normal of this face is pointing to
-        newFace = this.faceStore.create(points, edge.prev.vertex, edge.vertex, pointIndex)
-        newFaces.push(newFace)
+        face = this.faceStore.create(points, edge.prev.vertex, edge.vertex, pointIndex)
+        newFaces.push(face)
       }
 
+      // update twin edges
+      // - let `face` be a face created with the visible point and an edge on the horizon
+      //  - set the reference with a face that is on the horizon
+      //  - set the refernce with a newly created face (face[i] and face[i + 1] are neighbors)
+      //  - attempt to merge a face with the face not visible which is on the horizon
       for (j = LENGTH - 1, i = 0; i < LENGTH; j = i, i += 1) {
-        newFace = newFaces[i]
-        // new face with new face
-        newFaces[j].updateTwins(newFace)
-        // new face with horizon face (which is accessible through the twin's reference)
-        // face merge is done in updateTwins
-        horizonEdges[i].twin.face.updateTwins(newFace)
-
-        // only push a new face when there weren't any merges
-        // debug('pushing new face %d, %j', newFace.id, newFace.vertexIndexCollection)
-        facesToCheck.push(newFace)
+        face = newFaces[j]
+        faceBelow = horizonEdges[j].twin.face
+        face.computeTwinEdge(faceBelow)
+        face.mergeAttempt(faceBelow)
+        facesToCheck.push(face)
       }
+
+      // merge face[i] with face[i + 1]
+      for (j = LENGTH - 1, i = 0; i < LENGTH; i += 1) {
+        face = newFaces[j]
+        faceRight = newFaces[i]
+        face.computeTwinEdge(faceRight)
+        if (!face.mergeAttempt(faceRight)) {
+          j = i 
+        }
+      }
+
+      // reassign indices (gathered from the faces that can see `v`)
       this.assignIndices(newFaces, indicesToAssign)
     }
   }

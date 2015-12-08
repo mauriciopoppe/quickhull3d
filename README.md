@@ -1,11 +1,10 @@
 # quickhull3d
-[![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
-[![NPM][npm-image]][npm-url]
+[![NPM version][npm-image]][npm-url]
+[![Build Status][travis-image]][travis-url]
+[![Codecov Status][codecov-image]][codecov-url]
 
-[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
-
-A quickhull implementation for 3d points in `O(n log n)` based on the paper:
+A quickhull implementation for 3d points in `O(n log n)` ported from [John Lloyd implementation](http://www.cs.ubc.ca/~lloyd/java/quickhull3d.html) with some modifications based on the paper:
 
 - [The Quickhull Algorithm for Convex Hulls](http://www.cise.ufl.edu/~ungor/courses/fall06/papers/QuickHull.pdf)
 
@@ -14,43 +13,9 @@ Helpful implementation material:
 - Dirk Gregorius presentation: http://box2d.org/files/GDC2014/DirkGregorius_ImplementingQuickHull.pdf
 - Convex Hull Generation with Quick Hull by Randy Gaul: http://www.randygaul.net/wp-content/uploads/2013/11/QuickHull.pdf
 
-Todo:
-
-- [x] Face representation using the `HalfEdge` data structure
-- [x] `Face merge` as described in Dirk Gregorius' presentation
-
 ## Demo
 
 [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=9b19fccfa670c9e2597b)
-
-## Benchmarks
-
-Specs:
-
-```
-MacBook Pro (Retina, Mid 2012)
-2.3 GHz Intel Core i7
-8 GB 1600 MHz DDR3
-NVIDIA GeForce GT 650M 1024 MB
-```
-
-Versus [`convex-hull`](https://www.npmjs.com/package/convex-hull)
-
-```
-// LEGEND: program:numberOfPoints
-quickhull3d:100 x 1,580 ops/sec ±2.12% (85 runs sampled)
-convexhull:100 x 2,379 ops/sec ±0.78% (89 runs sampled)
-quickhull3d:1000 x 477 ops/sec ±1.81% (68 runs sampled)
-convexhull:1000 x 340 ops/sec ±1.70% (83 runs sampled)
-quickhull3d:10000 x 115 ops/sec ±2.51% (68 runs sampled)
-convexhull:10000 x 30.26 ops/sec ±1.20% (54 runs sampled)
-quickhull3d:100000 x 13.68 ops/sec ±1.57% (38 runs sampled)
-convexhull:100000 x 2.26 ops/sec ±7.74% (10 runs sampled)
-quickhull3d:200000 x 9.13 ops/sec ±9.26% (28 runs sampled)
-convexhull:200000 x 1.13 ops/sec ±10.14% (7 runs sampled)
-```
-
-[![quickhull3d vs convexhull](https://cloud.githubusercontent.com/assets/1616682/10469408/f72213f2-71d2-11e5-8ec2-fd41bdd8fb04.png)](https://plot.ly/~maurizzzio/36/quickhull3d-vs-convexhull/)
 
 ## Usage
 
@@ -175,15 +140,48 @@ that form part of the face, since it's implemented as a double linked list rando
 * `signedDistanceToOrigin` {number} signed distance from the origin to the half plane which has the face,
 it's negative if the face's normal is pointing towards the origin
 
+## Benchmarks
+
+Specs:
+
+```
+MacBook Pro (Retina, Mid 2012)
+2.3 GHz Intel Core i7
+8 GB 1600 MHz DDR3
+NVIDIA GeForce GT 650M 1024 MB
+```
+
+Versus [`convex-hull`](https://www.npmjs.com/package/convex-hull)
+
+```
+// LEGEND: program:numberOfPoints
+quickhull3d:100 x 1,580 ops/sec ±2.12% (85 runs sampled)
+convexhull:100 x 2,379 ops/sec ±0.78% (89 runs sampled)
+quickhull3d:1000 x 477 ops/sec ±1.81% (68 runs sampled)
+convexhull:1000 x 340 ops/sec ±1.70% (83 runs sampled)
+quickhull3d:10000 x 115 ops/sec ±2.51% (68 runs sampled)
+convexhull:10000 x 30.26 ops/sec ±1.20% (54 runs sampled)
+quickhull3d:100000 x 13.68 ops/sec ±1.57% (38 runs sampled)
+convexhull:100000 x 2.26 ops/sec ±7.74% (10 runs sampled)
+quickhull3d:200000 x 9.13 ops/sec ±9.26% (28 runs sampled)
+convexhull:200000 x 1.13 ops/sec ±10.14% (7 runs sampled)
+```
+
+[![quickhull3d vs convexhull](https://cloud.githubusercontent.com/assets/1616682/10469408/f72213f2-71d2-11e5-8ec2-fd41bdd8fb04.png)](https://plot.ly/~maurizzzio/36/quickhull3d-vs-convexhull/)
+
 ## License
 
 Copyright (c) 2015 Mauricio Poppe. Licensed under the MIT license.
 
-[npm-url]: https://npmjs.org/package/quickhull3d
-[npm-image]: https://nodei.co/npm/quickhull3d.png?downloads=true
-[travis-url]: https://travis-ci.org/maurizzzio/quickhull3d
-[travis-image]: https://travis-ci.org/maurizzzio/quickhull3d.svg?branch=master
-[daviddm-url]: https://david-dm.org/maurizzzio/quickhull3d.svg?theme=shields.io
-[daviddm-image]: https://david-dm.org/maurizzzio/quickhull3d
-[coveralls-url]: https://coveralls.io/r/maurizzzio/quickhull3d
-[coveralls-image]: https://coveralls.io/repos/maurizzzio/quickhull3d/badge.svg?branch=master&service=github
+[npm-url]: https://npmjs.org/package/generator-mnm-example
+[npm-image]: https://img.shields.io/npm/v/generator-mnm-example.svg?style=flat
+
+[travis-url]: https://travis-ci.org/maurizzzio/generator-mnm-example
+[travis-image]: https://img.shields.io/travis/maurizzzio/generator-mnm-example.svg?style=flat
+
+[codecov-url]: https://codecov.io/github/maurizzzio/generator-mnm-example
+[codecov-image]: https://img.shields.io/codecov/c/github/maurizzzio/generator-mnm-example.svg?style=flat
+
+[depstat-url]: https://david-dm.org/maurizzzio/generator-mnm-example
+[depstat-image]: https://david-dm.org/maurizzzio/generator-mnm-example.svg?style=flat
+[download-badge]: http://img.shields.io/npm/dm/generator-mnm-example.svg?style=flat

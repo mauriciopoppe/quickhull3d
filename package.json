@@ -1,6 +1,6 @@
 {
   "name": "quickhull3d",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "A quickhull implementation for 3d points",
   "homepage": "https://github.com/maurizzzio/quickhull3d",
   "author": {
@@ -38,7 +38,9 @@
       "/dist"
     ]
   },
-  "files": ["/dist"],
+  "files": [
+    "/dist"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",

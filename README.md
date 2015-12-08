@@ -4,33 +4,82 @@
 [![Build Status][travis-image]][travis-url]
 [![Codecov Status][codecov-image]][codecov-url]
 
-A quickhull implementation for 3d points in `O(n log n)` ported from [John Lloyd implementation](http://www.cs.ubc.ca/~lloyd/java/quickhull3d.html) with some modifications based on the paper:
+A robust quickhull implementation to find the convex hull of a set of 3d points in `O(n log n)` ported from [John Lloyd implementation](http://www.cs.ubc.ca/~lloyd/java/quickhull3d.html)
 
-- [The Quickhull Algorithm for Convex Hulls](http://www.cise.ufl.edu/~ungor/courses/fall06/papers/QuickHull.pdf)
-
-Helpful implementation material:
+Additional implementation material:
 
 - Dirk Gregorius presentation: http://box2d.org/files/GDC2014/DirkGregorius_ImplementingQuickHull.pdf
 - Convex Hull Generation with Quick Hull by Randy Gaul: http://www.randygaul.net/wp-content/uploads/2013/11/QuickHull.pdf
+
+## Features
+
+- Key functions are well documented (including ascii graphics)
+- [Faster](https://plot.ly/~maurizzzio/36/quickhull3d-vs-convexhull/) than other JavaScript implementations of convex hull
 
 ## Demo
 
 [![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=9b19fccfa670c9e2597b)
 
+## Installation
+
+```bash
+$ npm install --save quickhull3d
+```
+
 ## Usage
 
-**input** an array of `[x,y,z]` which are coordinates of 3d points
+```javascript
+var qh = require('quickhull3d')
+```
 
-**output** an array of `[i,j,k]` which are the indices of the points that make a face whose normal points outwards the center of the polyhedra
+#### `qh(points, options)`
+
+**params**
+* `points` {Array} an array of 3d points whose convex hull needs to be computed
+* `options` {Object} (optional)
+* `options.skipTriangulation` {Boolean} True to skip the triangulation of the faces
+    (returning n-vertex faces)
+
+**returns** An array of 3 element arrays, each subarray has the indices of 3 points which form a face whose normal points outside the polyhedra
+
+### Constructor
 
 ```javascript
-var qh = require('quickhull3d');
-var points = [
+var QuickHull = require('quickhull3d/dist/QuickHull')
+```
+
+#### `instance = new QuickHull(points)`
+
+**params**
+* `points` {Array} an array of 3d points whose convex hull needs to be computed
+
+#### `instance.build()`
+
+Computes the quickhull of all the points stored in the instance
+
+**time complexity** `O(n log n)`
+
+#### `instance.collectFaces(skipTriangulation)`
+
+**params**
+* `skipTriangulation` {Boolean} (default: false) True to skip the triangulation
+    and return n-vertices faces
+
+**returns**
+
+An array of 3-element arrays (or n-element arrays if `skipTriangulation = true`)
+which are the faces of the convex hull
+
+## Example
+
+```javascript
+import qh from 'quickhull3d'
+const points = [
   [0, 1, 0],
   [1, -1, 1],
   [-1, -1, 1],
   [0, -1, -1]
-];
+]
 
 qh(points)
 // output:
@@ -45,100 +94,17 @@ qh(points)
 Using the constructor:
 
 ```javascript
-var QuickHull = require('quickhull3d').QuickHull;
-var points = [
+import QuickHull from 'quickhull/dist/QuickHull'
+const points = [
   [0, 1, 0],
   [1, -1, 1],
   [-1, -1, 1],
   [0, -1, -1]
 ];
-var instance = new QuickHull(points)
-instance.on('face:create', function (face) {
-  // see Face3 docs to see the properties of the face
-});
-instance.on('face:destroy', function (face) {
-  // see Face3 docs to see the properties of the face
-});
-// computes the quickhull
-instance.run();
+const instance = new QuickHull(points)
+instance.build()
+instance.collectFaces()   // returns an array of 3-element arrays
 ```
-
-
-## Installation
-
-```bash
-$ npm install --save quickhull3d
-```
-
-## API
-
-```javascript
-var qh = require('quickhull3d')
-```
-
-#### `qh(points, options)`
-
-**params**
-* `points` an array of 3d points whose convex hull needs to be computed
-* `options` (optional) options passed to `QuickHull.prototype.run`
-
-**returns** An array of 3 element arrays, each subarray has the indices of 3 points which form a face whose
-normal points outside the polyhedra
-
-### Constructor
-
-#### `instance = new qh.QuickHull([points])`
-**extends** `EventEmitter`
-
-**params**
-* `points` (optional) an array of 3d points whose convex hull needs to be computed
-
-**properties**
-* `points` an internal reference of the points
-* `faceStore` (private) an instance of the class `Face3Store`
-
-**events**
-* `face:create(face)` fired when a face is created
-  * `face` an instance of the `Face3` class
-* `face:destroy(face)` fired when a face is destroyed
-  * `face` an instance of the `Face3` class
-
-#### `instance.run(options)`
-
-**params**
-* `options` (optional) Configuration options for the computation
- * `options.skipTriangulation` {Boolean} (default=`false`) Set it to true to return merged faces as
- they are, e.g. a face with 5 indices will be split into 3 triangles if `avoidTriangulation=false`
-
-Computes the quickhull of all the points stored in the instance
-
-**returns** An array of 3 element arrays, each subarray has the indices of 3 points which form a face whose
-normal points outside the polyhedra
-
-**time complexity** `O(n log n)`
-
-### Face3
-
-#### `instance = new qh.Face3(points, i, j, k)`
-
-You shouldn't call this constructor but it's documented here for reference of the events 
-fired by instances of `QuickHull`
-
-**params**
-* `points` {Array[]} 3d points whose convex hull needs to be computed
-* `i` {number} an index of a point which defines this face
-* `j` {number} an index of a point which defines this face
-* `k` {number} an index of a point which defines this face
-
-**properties**
-* `id` {number}
-* `destroyed` {Boolean} True if the face is not part of the convex hull 
-* `edge` {HalfEdge} An instance of the `HalfEdge` class, holds a pointer to the next and previous half edges
-that form part of the face, since it's implemented as a double linked list random access works in `O(n)`
-* `normal` {vec3} The normal of the plane defined by the vectors (`points[j] - points[i]` and `points[k] - points[i]`)
-* `maxDistance` {number} signed distance of the furthest point this face can see
-* `signedDistanceToOrigin` {number} signed distance from the origin to the half plane which has the face,
-it's negative if the face's normal is pointing towards the origin
 
 ## Benchmarks
 
@@ -155,19 +121,19 @@ Versus [`convex-hull`](https://www.npmjs.com/package/convex-hull)
 
 ```
 // LEGEND: program:numberOfPoints
-quickhull3d:100 x 1,580 ops/sec ±2.12% (85 runs sampled)
-convexhull:100 x 2,379 ops/sec ±0.78% (89 runs sampled)
-quickhull3d:1000 x 477 ops/sec ±1.81% (68 runs sampled)
-convexhull:1000 x 340 ops/sec ±1.70% (83 runs sampled)
-quickhull3d:10000 x 115 ops/sec ±2.51% (68 runs sampled)
-convexhull:10000 x 30.26 ops/sec ±1.20% (54 runs sampled)
-quickhull3d:100000 x 13.68 ops/sec ±1.57% (38 runs sampled)
-convexhull:100000 x 2.26 ops/sec ±7.74% (10 runs sampled)
-quickhull3d:200000 x 9.13 ops/sec ±9.26% (28 runs sampled)
-convexhull:200000 x 1.13 ops/sec ±10.14% (7 runs sampled)
+quickhull3d:100 x 6,212 ops/sec 1.24% (92 runs sampled)
+convexhull:100 x 2,507 ops/sec 1.20% (89 runs sampled)
+quickhull3d:1000 x 1,171 ops/sec 0.93% (97 runs sampled)
+convexhull:1000 x 361 ops/sec 1.38% (88 runs sampled)
+quickhull3d:10000 x 190 ops/sec 1.33% (87 runs sampled)
+convexhull:10000 x 32.04 ops/sec 2.37% (56 runs sampled)
+quickhull3d:100000 x 11.90 ops/sec 6.34% (34 runs sampled)
+convexhull:100000 x 2.81 ops/sec 2.17% (11 runs sampled)
+quickhull3d:200000 x 5.11 ops/sec 10.05% (18 runs sampled)
+convexhull:200000 x 1.23 ops/sec 3.33% (8 runs sampled)
 ```
 
-[![quickhull3d vs convexhull](https://cloud.githubusercontent.com/assets/1616682/10469408/f72213f2-71d2-11e5-8ec2-fd41bdd8fb04.png)](https://plot.ly/~maurizzzio/36/quickhull3d-vs-convexhull/)
+[![quickhull3d vs convexhull](https://cloud.githubusercontent.com/assets/1616682/11645526/97036bea-9d2b-11e5-8549-8ccba137f1b2.png)](https://plot.ly/~maurizzzio/36/quickhull3d-vs-convexhull/)
 
 ## License
 

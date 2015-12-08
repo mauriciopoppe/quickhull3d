@@ -9,8 +9,8 @@
 var Benchmark = require('benchmark')
 var suite = new Benchmark.Suite()
 
-var QuickHull3d = require('../index')
-var convexHull = require('convex-hull')
+var qh = require('../dist/')
+var ch = require('convex-hull')
 var fs = require('fs')
 
 var arr = ['100', '1000', '10000', '100000', '200000']
@@ -31,10 +31,10 @@ arr.forEach(function (n) {
   data = JSON.parse(data)
   suite
     .add('quickhull3d:' + n, function () {
-      QuickHull3d(data)
+      qh(data)
     })
     .add('convexhull:' + n, function () {
-      convexHull(data)
+      ch(data)
     })
 })
 

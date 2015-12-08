@@ -1,6 +1,13 @@
 language: node_js
-env: CI=true
 node_js:
   - '0.10'
+  - v5
+  - v4
+  - '0.12'
+before_script:
+  - 'npm run lint'
+script:
+  - 'npm run build'
 after_script:
-  - npm run coveralls
+  - 'npm run codecov'
+

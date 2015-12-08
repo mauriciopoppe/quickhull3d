@@ -173,15 +173,15 @@ convexhull:200000 x 1.13 ops/sec ±10.14% (7 runs sampled)
 
 Copyright (c) 2015 Mauricio Poppe. Licensed under the MIT license.
 
-[npm-url]: https://npmjs.org/package/generator-mnm-example
-[npm-image]: https://img.shields.io/npm/v/generator-mnm-example.svg?style=flat
+[npm-url]: https://npmjs.org/package/quickhull3d
+[npm-image]: https://img.shields.io/npm/v/quickhull3d.svg?style=flat
 
-[travis-url]: https://travis-ci.org/maurizzzio/generator-mnm-example
-[travis-image]: https://img.shields.io/travis/maurizzzio/generator-mnm-example.svg?style=flat
+[travis-url]: https://travis-ci.org/maurizzzio/quickhull3d
+[travis-image]: https://img.shields.io/travis/maurizzzio/quickhull3d.svg?style=flat
 
-[codecov-url]: https://codecov.io/github/maurizzzio/generator-mnm-example
-[codecov-image]: https://img.shields.io/codecov/c/github/maurizzzio/generator-mnm-example.svg?style=flat
+[codecov-url]: https://codecov.io/github/maurizzzio/quickhull3d
+[codecov-image]: https://img.shields.io/codecov/c/github/maurizzzio/quickhull3d.svg?style=flat
 
-[depstat-url]: https://david-dm.org/maurizzzio/generator-mnm-example
-[depstat-image]: https://david-dm.org/maurizzzio/generator-mnm-example.svg?style=flat
-[download-badge]: http://img.shields.io/npm/dm/generator-mnm-example.svg?style=flat
+[depstat-url]: https://david-dm.org/maurizzzio/quickhull3d
+[depstat-image]: https://david-dm.org/maurizzzio/quickhull3d.svg?style=flat
+[download-badge]: http://img.shields.io/npm/dm/quickhull3d.svg?style=flat

@@ -2,13 +2,13 @@
   "name": "quickhull3d",
   "version": "2.0.0",
   "description": "A quickhull implementation for 3d points",
-  "homepage": "https://github.com/maurizzzio/quickhull3d",
+  "homepage": "https://github.com/mauriciopoppe/quickhull3d",
   "author": {
     "name": "Mauricio Poppe",
     "email": "mauricio.poppe@gmail.com",
-    "url": "http://maurizzzio.com"
+    "url": "http://mauriciopoppe.com"
   },
-  "bugs": "https://github.com/maurizzzio/quickhull3d/issues",
+  "bugs": "https://github.com/mauriciopoppe/quickhull3d/issues",
   "main": "dist/index.js",
   "keywords": [
     "geometry",
@@ -44,7 +44,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/maurizzzio/quickhull3d"
+    "url": "https://github.com/mauriciopoppe/quickhull3d"
   },
   "dependencies": {
     "debug-fn": "^1.0.1",

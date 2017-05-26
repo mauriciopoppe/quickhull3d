@@ -142,12 +142,12 @@ Copyright (c) 2015 Mauricio Poppe. Licensed under the MIT license.
 [npm-url]: https://npmjs.org/package/quickhull3d
 [npm-image]: https://img.shields.io/npm/v/quickhull3d.svg?style=flat
 
-[travis-url]: https://travis-ci.org/maurizzzio/quickhull3d
-[travis-image]: https://img.shields.io/travis/maurizzzio/quickhull3d.svg?style=flat
+[travis-url]: https://travis-ci.org/mauriciopoppe/quickhull3d
+[travis-image]: https://img.shields.io/travis/mauriciopoppe/quickhull3d.svg?style=flat
 
-[codecov-url]: https://codecov.io/github/maurizzzio/quickhull3d
-[codecov-image]: https://img.shields.io/codecov/c/github/maurizzzio/quickhull3d.svg?style=flat
+[codecov-url]: https://codecov.io/github/mauriciopoppe/quickhull3d
+[codecov-image]: https://img.shields.io/codecov/c/github/mauriciopoppe/quickhull3d.svg?style=flat
 
-[depstat-url]: https://david-dm.org/maurizzzio/quickhull3d
-[depstat-image]: https://david-dm.org/maurizzzio/quickhull3d.svg?style=flat
+[depstat-url]: https://david-dm.org/mauriciopoppe/quickhull3d
+[depstat-image]: https://david-dm.org/mauriciopoppe/quickhull3d.svg?style=flat
 [download-badge]: http://img.shields.io/npm/dm/quickhull3d.svg?style=flat

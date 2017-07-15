@@ -18,7 +18,7 @@ Additional implementation material:
 
 ## Demo
 
-[![view on requirebin](http://requirebin.com/badge.png)](http://requirebin.com/?gist=9b19fccfa670c9e2597b)
+[![Edit mQ7AgN1n](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/mQ7AgN1n)
 
 ## Installation
 

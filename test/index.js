@@ -291,4 +291,3 @@ test('predefined set of points #5', function (t) {
   t.assert(isConvexHull(points, faces), 'should be a convex hull')
   t.end()
 })
-

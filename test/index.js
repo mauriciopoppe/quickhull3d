@@ -285,3 +285,10 @@ test('predefined set of points #3', function (t) {
   t.end()
 })
 
+test('predefined set of points #5', function (t) {
+  var points = require('./issue5.json')
+  var faces = qh(points)
+  t.assert(isConvexHull(points, faces), 'should be a convex hull')
+  t.end()
+})
+

@@ -3,6 +3,7 @@
 [![NPM version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
 [![Codecov Status][codecov-image]][codecov-url]
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmauriciopoppe%2Fquickhull3d.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmauriciopoppe%2Fquickhull3d?ref=badge_shield)
 
 A robust quickhull implementation to find the convex hull of a set of 3d points in `O(n log n)` ported from [John Lloyd implementation](http://www.cs.ubc.ca/~lloyd/java/quickhull3d.html)
 
@@ -151,3 +152,6 @@ Copyright (c) 2015 Mauricio Poppe. Licensed under the MIT license.
 [depstat-url]: https://david-dm.org/mauriciopoppe/quickhull3d
 [depstat-image]: https://david-dm.org/mauriciopoppe/quickhull3d.svg?style=flat
 [download-badge]: http://img.shields.io/npm/dm/quickhull3d.svg?style=flat
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmauriciopoppe%2Fquickhull3d.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmauriciopoppe%2Fquickhull3d?ref=badge_large)

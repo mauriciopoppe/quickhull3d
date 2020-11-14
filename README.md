@@ -12,6 +12,8 @@ Additional implementation material:
 - Dirk Gregorius presentation: http://box2d.org/files/GDC2014/DirkGregorius_ImplementingQuickHull.pdf
 - Convex Hull Generation with Quick Hull by Randy Gaul: http://www.randygaul.net/wp-content/uploads/2013/11/QuickHull.pdf
 
+[This library was incorporated into ThreeJS!](https://github.com/mrdoob/three.js/pull/10987). Thanks to https://github.com/Mugen87 for his work to move the primitives to ThreeJS primitives, the quickhull3d library will always be library agnostic and will operate with raw arrays.
+
 ## Features
 
 - Key functions are well documented (including ascii graphics)

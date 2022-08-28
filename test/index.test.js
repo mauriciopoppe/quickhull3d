@@ -1,7 +1,7 @@
 /* eslint-env jest */
 
 import assert from 'assert'
-import qh from '../lib/'
+import qh, { isPointInsideHull } from '../lib/'
 import QuickHull from '../lib/QuickHull'
 import vec3 from 'gl-vec3'
 import getPlaneNormal from 'get-plane-normal'
@@ -272,4 +272,20 @@ test('predefined set of points #5', function () {
   const points = require('./issue5.json')
   const faces = qh(points)
   expect(isConvexHull(points, faces)).toBe(true)
+})
+
+test('point inside hull', function () {
+  const points = [
+    [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1],
+    [1, 1, 0], [1, 0, 1], [0, 1, 1], [1, 1, 1]
+  ]
+  const faces = qh(points)
+  expect(faces.length).toBe(12)
+  // point is inside the hull
+  expect(isPointInsideHull([0.5, 0.5, 0.5], points, faces)).toBe(true)
+  // point is part of the hull
+  expect(isPointInsideHull([1, 1, 1], points, faces)).toBe(true)
+  // point is outside the hull
+  expect(isPointInsideHull([1, 1, 1.0000001], points, faces)).toBe(false)
+  expect(isPointInsideHull([0, 0, -0.0000001], points, faces)).toBe(false)
 })

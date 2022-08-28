@@ -34,7 +34,7 @@ $ npm install --save quickhull3d
 import qh from 'quickhull3d'
 ```
 
-#### `qh(points, options)`
+### `qh(points, options)`
 
 **params**
 * `points` {Array} an array of 3d points whose convex hull needs to be computed
@@ -43,6 +43,29 @@ import qh from 'quickhull3d'
     (returning n-vertex faces)
 
 **returns** An array of 3 element arrays, each subarray has the indices of 3 points which form a face whose normal points outside the polyhedra
+
+### `isPointInsideHull(point, points, faces)`
+
+**params**
+* `point` {Array<number>} The point that we want to check that it's a convex hull.
+* `points` {Array<Array<number>>} The array of 3d points whose convex hull was computed
+* `faces` {Array<Array<number>>} An array of 3 element arrays, each subarray has the indices of 3 points which form a face whose normal points outside the polyhedra
+
+**returns** `true` if the point `point` is inside the convex hull
+
+**example**
+
+```javascript
+import qh, { isPointInsideHull } from 'quickhull3d'
+
+const points = [
+  [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1],
+  [1, 1, 0], [1, 0, 1], [0, 1, 1], [1, 1, 1]
+]
+const faces = qh(points)
+expect(isPointInsideHull([0.5, 0.5, 0.5], points, faces)).toBe(true)
+expect(isPointInsideHull([0, 0, -0.1], points, faces)).toBe(false)
+```
 
 ### Constructor
 

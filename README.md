@@ -8,7 +8,7 @@ A robust quickhull implementation to find the convex hull of a set of 3d points 
 
 Additional implementation material:
 
-- Dirk Gregorius presentation: http://box2d.org/files/GDC2014/DirkGregorius_ImplementingQuickHull.pdf
+- Dirk Gregorius presentation: https://archive.org/details/GDC2014Gregorius
 - Convex Hull Generation with Quick Hull by Randy Gaul: http://www.randygaul.net/wp-content/uploads/2013/11/QuickHull.pdf
 
 [This library was incorporated into ThreeJS!](https://github.com/mrdoob/three.js/pull/10987). Thanks to https://github.com/Mugen87 for his work to move the primitives to ThreeJS primitives, the quickhull3d library will always be library agnostic and will operate with raw arrays.
@@ -31,7 +31,7 @@ $ npm install --save quickhull3d
 ## Usage
 
 ```javascript
-var qh = require('quickhull3d')
+import qh from 'quickhull3d'
 ```
 
 #### `qh(points, options)`
@@ -47,7 +47,7 @@ var qh = require('quickhull3d')
 ### Constructor
 
 ```javascript
-var QuickHull = require('quickhull3d/dist/QuickHull')
+import QuickHull from 'quickhull3d/dist/QuickHull'
 ```
 
 #### `instance = new QuickHull(points)`
@@ -139,17 +139,12 @@ convexhull:200000 x 1.23 ops/sec 3.33% (8 runs sampled)
 
 ## License
 
-Copyright (c) 2015 Mauricio Poppe. Licensed under the MIT license.
+Mauricio Poppe. Licensed under the MIT license.
 
 [npm-url]: https://npmjs.org/package/quickhull3d
 [npm-image]: https://img.shields.io/npm/v/quickhull3d.svg?style=flat
 
 [codecov-url]: https://codecov.io/github/mauriciopoppe/quickhull3d
 [codecov-image]: https://img.shields.io/codecov/c/github/mauriciopoppe/quickhull3d.svg?style=flat
-
-[depstat-url]: https://david-dm.org/mauriciopoppe/quickhull3d
-[depstat-image]: https://david-dm.org/mauriciopoppe/quickhull3d.svg?style=flat
-[download-badge]: http://img.shields.io/npm/dm/quickhull3d.svg?style=flat
-
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmauriciopoppe%2Fquickhull3d.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmauriciopoppe%2Fquickhull3d?ref=badge_large)

@@ -1,7 +1,6 @@
 # quickhull3d
 
 [![NPM version][npm-image]][npm-url]
-[![Build Status][travis-image]][travis-url]
 [![Codecov Status][codecov-image]][codecov-url]
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmauriciopoppe%2Fquickhull3d.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmauriciopoppe%2Fquickhull3d?ref=badge_shield)
 
@@ -144,9 +143,6 @@ Copyright (c) 2015 Mauricio Poppe. Licensed under the MIT license.
 
 [npm-url]: https://npmjs.org/package/quickhull3d
 [npm-image]: https://img.shields.io/npm/v/quickhull3d.svg?style=flat
-
-[travis-url]: https://travis-ci.org/mauriciopoppe/quickhull3d
-[travis-image]: https://img.shields.io/travis/mauriciopoppe/quickhull3d.svg?style=flat
 
 [codecov-url]: https://codecov.io/github/mauriciopoppe/quickhull3d
 [codecov-image]: https://img.shields.io/codecov/c/github/mauriciopoppe/quickhull3d.svg?style=flat

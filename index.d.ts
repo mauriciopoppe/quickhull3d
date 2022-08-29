@@ -1,13 +1,15 @@
 export as namespace quickhull3d
-export = quickhull3d
+export default quickhull3d
 
-declare function quickhull3d(points: Quickhull3d.Points, options?: Quickhull3d.Options): Quickhull3d.Faces
+export type Point = [number, number, number]
+
+export type Face = [number, number, number]
+
+export function quickhull3d(points: Array<Point>, options?: Quickhull3d.Options): Array<Face>
+
+export function isPointInsideHull(point: Point, points: Array<Point>, faces: Array<Face>): boolean
 
 declare namespace Quickhull3d {
-  export type Points = Array<Array<number>>;
-
-  export type Faces = Array<Array<number>>;
-
   export interface Options {
     skipTriangulation?: boolean
   }

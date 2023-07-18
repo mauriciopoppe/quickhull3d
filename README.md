@@ -9,7 +9,7 @@ A robust quickhull implementation to find the convex hull of a set of 3d points 
 Additional implementation material:
 
 - Dirk Gregorius presentation: https://archive.org/details/GDC2014Gregorius
-- Convex Hull Generation with Quick Hull by Randy Gaul: http://www.randygaul.net/wp-content/uploads/2013/11/QuickHull.pdf
+- Convex Hull Generation with Quick Hull by Randy Gaul (lost link)
 
 [This library was incorporated into ThreeJS!](https://github.com/mrdoob/three.js/pull/10987). Thanks to https://github.com/Mugen87 for his work to move the primitives to ThreeJS primitives, the quickhull3d library will always be library agnostic and will operate with raw arrays.
 

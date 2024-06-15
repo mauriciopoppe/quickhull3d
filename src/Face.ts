@@ -1,18 +1,11 @@
-import dot from 'gl-vec3/dot'
-import add from 'gl-vec3/add'
-import copy from 'gl-vec3/copy'
-import subtract from 'gl-vec3/subtract'
-import cross from 'gl-vec3/cross'
-import length from 'gl-vec3/length'
-import scale from 'gl-vec3/scale'
-import scaleAndAdd from 'gl-vec3/scaleAndAdd'
-import normalize from 'gl-vec3/normalize'
+import { dot, add, copy, subtract, cross, length as magnitude, scale, scaleAndAdd, normalize } from 'gl-matrix/vec3'
 import { default as $debug } from 'debug'
 
+import { Vec3Like } from './types'
 import { HalfEdge } from './HalfEdge'
 import { Vertex } from './Vertex'
 
-const debug = $debug('face')
+const debug = $debug('quickhull3d:face')
 
 export enum Mark {
   Visible = 0,
@@ -21,8 +14,8 @@ export enum Mark {
 }
 
 export class Face {
-  normal: number[]
-  centroid: number[]
+  normal: Vec3Like
+  centroid: Vec3Like
   offset: number
   outside: Vertex
   mark: Mark
@@ -31,8 +24,8 @@ export class Face {
   area: number
 
   constructor() {
-    this.normal = [-1, -1, -1]
-    this.centroid = [-1, -1, -1]
+    this.normal = new Float32Array(3)
+    this.centroid = new Float32Array(3)
     // signed distance from face to the origin
     this.offset = 0
     // pointer to the a vertex in a double linked list this face can see
@@ -59,12 +52,12 @@ export class Face {
     const e0 = this.edge
     const e1 = e0.next
     let e2 = e1.next
-    const v2 = subtract([], e1.head().point, e0.head().point)
-    const t: number[] = []
-    const v1: number[] = []
+    const v2 = subtract(new Float32Array(3), e1.head().point, e0.head().point)
+    const t = new Float32Array(3)
+    const v1 = new Float32Array(3)
 
     this.nVertices = 2
-    this.normal = [0, 0, 0]
+    this.normal = new Float32Array(3)
     while (e2 !== e0) {
       copy(v1, v2)
       subtract(v2, e2.head().point, e0.head().point)
@@ -72,7 +65,7 @@ export class Face {
       e2 = e2.next
       this.nVertices += 1
     }
-    this.area = length(this.normal)
+    this.area = magnitude(this.normal)
     // normalize the vector, since we've already calculated the area
     // it's cheaper to scale the vector using this quantity instead of
     // doing the same operation again
@@ -83,7 +76,7 @@ export class Face {
     this.computeNormal()
     if (this.area < minArea) {
       // compute the normal without the longest edge
-      let maxEdge
+      let maxEdge: HalfEdge
       let maxSquaredLength = 0
       let edge = this.edge
 
@@ -99,7 +92,7 @@ export class Face {
 
       const p1 = maxEdge.tail().point
       const p2 = maxEdge.head().point
-      const maxVector = subtract([], p2, p1)
+      const maxVector = subtract(new Float32Array(3), p2, p1)
       const maxLength = Math.sqrt(maxSquaredLength)
       // maxVector is normalized after this operation
       scale(maxVector, maxVector, 1 / maxLength)
@@ -132,7 +125,7 @@ export class Face {
     this.offset = dot(this.normal, this.centroid)
   }
 
-  distanceToPlane(point: number[]) {
+  distanceToPlane(point: Vec3Like) {
     return dot(this.normal, point) - this.offset
   }
 
@@ -145,11 +138,11 @@ export class Face {
    * @param {HalfEdge} next
    */
   connectHalfEdges(prev: HalfEdge, next: HalfEdge) {
-    let discardedFace
+    let discardedFace: Face
     if (prev.opposite.face === next.opposite.face) {
       // `prev` is remove a redundant edge
       const oppositeFace = next.opposite.face
-      let oppositeEdge
+      let oppositeEdge: HalfEdge
       if (prev === this.edge) {
         this.edge = next
       }
@@ -275,7 +268,7 @@ export class Face {
     // fix the face reference of all the opposite edges that are not part of
     // the edges whose opposite face is not `face` i.e. all the edges that
     // `face` and `oppositeFace` do not have in common
-    let edge
+    let edge: HalfEdge
     for (edge = oppositeEdgeNext; edge !== oppositeEdgePrev.next; edge = edge.next) {
       edge.face = this
     }
@@ -311,6 +304,27 @@ export class Face {
       edge = edge.next
     } while (edge !== this.edge)
     return indices
+  }
+
+  static fromVertices(vertices: Vertex[], minArea = 0) {
+    const face = new Face()
+    const e0 = new HalfEdge(vertices[0], face)
+    let lastE = e0
+    for (let i = 1; i < vertices.length; i += 1) {
+      const e = new HalfEdge(vertices[i], face)
+      e.prev = lastE
+      lastE.next = e
+      lastE = e
+    }
+    lastE.next = e0
+    e0.prev = lastE
+
+    face.edge = e0
+    face.computeNormalAndCentroid(minArea)
+    if (debug.enabled) {
+      debug('face created %j', face.collectIndices())
+    }
+    return face
   }
 
   static createTriangle(v0: Vertex, v1: Vertex, v2: Vertex, minArea = 0) {

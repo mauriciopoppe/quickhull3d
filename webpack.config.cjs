@@ -5,12 +5,15 @@ module.exports = {
   entry: './src/index.ts',
   mode: isProduction ? 'production' : 'development',
   devtool: isProduction ? 'nosources-source-map' : 'inline-source-map',
+  experiments: {
+    outputModule: true
+  },
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'quickhull3d.js',
-    library: 'quickhull3d',
-    libraryExport: 'default',
-    libraryTarget: 'umd'
+    library: {
+      type: 'module'
+    }
   },
   module: {
     rules: [

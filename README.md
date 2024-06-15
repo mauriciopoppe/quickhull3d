@@ -24,6 +24,30 @@ Click on the image to see a demo!
 
 [![demo](./docs/quickhull3d.png)](http://mauriciopoppe.github.io/quickhull3d/)
 
+## Minimal demo (browser only)
+
+```html
+<script type="module">
+  import qh from 'https://cdn.jsdelivr.net/npm/quickhull3d@<version>/dist/quickhull3d.js'
+
+  const points = [
+    [0, 1, 0],
+    [1, -1, 1],
+    [-1, -1, 1],
+    [0, -1, -1]
+  ]
+
+  const faces = qh(points)
+  // output:
+  // [ [ 2, 0, 3 ], [ 0, 1, 3 ], [ 2, 1, 0 ], [ 2, 3, 1 ] ]
+  // 1st face:
+  //   points[2] = [-1, -1, 1]
+  //   points[0] = [0, 1, 0]
+  //   points[3] = [0, -1, -1]
+  //   normal = (points[0] - points[2]) x (points[3] - points[2])
+</script>
+```
+
 ## Installation
 
 ```bash

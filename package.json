@@ -12,11 +12,11 @@
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
-  "jsdelivr": "dist/quickhull3d.js",
-  "unpkg": "dist/quickhull3d.js",
   "exports": {
-    "umd": "./dist/quickhull3d.js",
-    "default": "./dist/index.js"
+    ".": {
+      "import": "./dist/index.js",
+    }
+    "./dist/*": "./dist/*"
   },
   "keywords": [
     "geometry",

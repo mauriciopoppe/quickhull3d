@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
-import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js';
-import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+import { VertexNormalsHelper } from 'three/addons/helpers/VertexNormalsHelper.js'
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js'
 
 import qh from 'quickhull3d'
 
@@ -49,7 +49,7 @@ function ConvexMesh () {
     const c = points[faces[i][2]]
     vertices.push(...a, ...b, ...c)
   }
-  geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+  geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3))
   geometry.computeVertexNormals()
 
   const polyhedra = new THREE.Mesh(
@@ -62,7 +62,7 @@ function ConvexMesh () {
   return polyhedra
 }
 
-function rebuild(group) {
+function rebuild (group) {
   group.clear()
 
   // polyhedra
@@ -70,7 +70,7 @@ function rebuild(group) {
   group.add(polyhedra)
 
   // scene helpers
-  const vertHelper = new VertexNormalsHelper(polyhedra, 0.5, 0x00ff00);
+  const vertHelper = new VertexNormalsHelper(polyhedra, 0.5, 0x00ff00)
   group.add(vertHelper)
 }
 
@@ -125,11 +125,10 @@ function init () {
   const ambientLight = new THREE.AmbientLight(0x555555)
   scene.add(ambientLight)
 
-  const gui = new GUI();
-  gui.add( params, 'nPoints', 10, 1000).onChange(() => rebuild(group));
-  gui.add( params, 'domain', 50, 150 ).onChange(() => rebuild(group));
-  gui.add( params, 'timeToCompute' );
-
+  const gui = new GUI()
+  gui.add(params, 'nPoints', 10, 1000).onChange(() => rebuild(group))
+  gui.add(params, 'domain', 50, 150).onChange(() => rebuild(group))
+  gui.add(params, 'timeToCompute')
 
   window.addEventListener('resize', onWindowResize)
 }

@@ -56,7 +56,6 @@
     "point-line-distance": "^1.0.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.18.10",
     "@babel/core": "^7.18.13",
     "@babel/preset-env": "^7.18.10",
     "@babel/preset-typescript": "^7.24.7",

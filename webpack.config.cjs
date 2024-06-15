@@ -1,5 +1,14 @@
 const path = require('path')
+const webpack = require('webpack')
 const isProduction = process.env.NODE_ENV === 'production'
+
+const plugins = []
+if (isProduction) {
+  plugins.push(new webpack.NormalModuleReplacementPlugin(
+    /debug/,
+    './debug.ts'
+  ))
+}
 
 module.exports = {
   entry: './src/index.ts',
@@ -29,5 +38,6 @@ module.exports = {
   },
   stats: {
     errorDetails: true
-  }
+  },
+  plugins
 }

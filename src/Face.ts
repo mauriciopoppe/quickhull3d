@@ -1,4 +1,12 @@
-import { dot, add, subtract, cross, copy, length, scale, scaleAndAdd, normalize } from 'gl-vec3'
+import dot from 'gl-vec3/dot'
+import add from 'gl-vec3/add'
+import copy from 'gl-vec3/copy'
+import subtract from 'gl-vec3/subtract'
+import cross from 'gl-vec3/cross'
+import length from 'gl-vec3/length'
+import scale from 'gl-vec3/scale'
+import scaleAndAdd from 'gl-vec3/scaleAndAdd'
+import normalize from 'gl-vec3/normalize'
 import { default as $debug } from 'debug'
 
 import { HalfEdge } from './HalfEdge'

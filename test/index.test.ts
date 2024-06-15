@@ -1,10 +1,9 @@
-/* eslint-env jest */
-
-import assert from 'assert'
 import { expect, describe, it } from '@jest/globals'
-import qh, { isPointInsideHull, QuickHull, Face, Point } from '../src/'
+import assert from 'assert'
 import vec3 from 'gl-vec3'
 import getPlaneNormal from 'get-plane-normal'
+
+import qh, { isPointInsideHull, QuickHull, Face, Point } from '../src/'
 
 const EPS = 1e-6
 function equalEps (a: number, b: number) {

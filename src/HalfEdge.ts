@@ -1,4 +1,5 @@
-import { distance, squaredDistance } from 'gl-vec3'
+import distance from 'gl-vec3/distance'
+import squaredDistance from 'gl-vec3/squaredDistance'
 import { Face } from './Face'
 import { Vertex } from './Vertex'
 import { default as $debug } from 'debug'

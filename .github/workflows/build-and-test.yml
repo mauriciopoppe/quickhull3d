@@ -1,9 +1,9 @@
 name: Build and Test
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
-  build-and-test:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -12,16 +12,22 @@ jobs:
           fetch-depth: 0
 
       - uses: actions/setup-node@v3.1.1
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Coverage
-        run: npm run coverage
-
+      - run: npm install
+      - run: npm run test
+      - run: npm run lint
+      - run: npm run coverage
       - uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v3.1.1
+      - run: npm install
+      - run: npm run build

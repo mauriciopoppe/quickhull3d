@@ -1,38 +1,39 @@
-import dot from 'gl-vec3/dot'
-import add from 'gl-vec3/add'
-import subtract from 'gl-vec3/subtract'
-import cross from 'gl-vec3/cross'
-import copy from 'gl-vec3/copy'
-import length from 'gl-vec3/length'
-import scale from 'gl-vec3/scale'
-import scaleAndAdd from 'gl-vec3/scaleAndAdd'
-import normalize from 'gl-vec3/normalize'
+import { dot, add, subtract, cross, copy, length, scale, scaleAndAdd, normalize } from 'gl-vec3'
 
-import HalfEdge from './HalfEdge'
+import { HalfEdge } from './HalfEdge'
+import { Vertex } from './Vertex'
 
 const debug = require('debug')('face')
 
-export const VISIBLE = 0
-export const NON_CONVEX = 1
-export const DELETED = 2
+export enum Mark {
+  Visible = 0,
+  NonConvex,
+  Deleted
+}
 
-export default class Face {
+export class Face {
+  normal: number[]
+  centroid: number[]
+  offset: number
+  outside: Vertex
+  mark: Mark
+  edge: HalfEdge
+  nVertices: number
+  area: number
+
   constructor () {
-    this.normal = []
-    this.centroid = []
+    this.normal = [-1, -1, -1]
+    this.centroid = [-1, -1, -1]
     // signed distance from face to the origin
     this.offset = 0
     // pointer to the a vertex in a double linked list this face can see
     this.outside = null
-    this.mark = VISIBLE
+    this.mark = Mark.Visible
     this.edge = null
     this.nVertices = 0
   }
 
-  getEdge (i) {
-    if (typeof i !== 'number') {
-      throw Error('requires a number')
-    }
+  getEdge (i: number) {
     let it = this.edge
     while (i > 0) {
       it = it.next
@@ -50,8 +51,8 @@ export default class Face {
     const e1 = e0.next
     let e2 = e1.next
     const v2 = subtract([], e1.head().point, e0.head().point)
-    const t = []
-    const v1 = []
+    const t: number[] = []
+    const v1: number[] = []
 
     this.nVertices = 2
     this.normal = [0, 0, 0]
@@ -69,7 +70,7 @@ export default class Face {
     this.normal = scale(this.normal, this.normal, 1 / this.area)
   }
 
-  computeNormalMinArea (minArea) {
+  computeNormalMinArea (minArea: number) {
     this.computeNormal()
     if (this.area < minArea) {
       // compute the normal without the longest edge
@@ -112,7 +113,7 @@ export default class Face {
     scale(this.centroid, this.centroid, 1 / this.nVertices)
   }
 
-  computeNormalAndCentroid (minArea) {
+  computeNormalAndCentroid (minArea?: number) {
     if (typeof minArea !== 'undefined') {
       this.computeNormalMinArea(minArea)
     } else {
@@ -122,7 +123,7 @@ export default class Face {
     this.offset = dot(this.normal, this.centroid)
   }
 
-  distanceToPlane (point) {
+  distanceToPlane (point: number[]) {
     return dot(this.normal, point) - this.offset
   }
 
@@ -134,7 +135,7 @@ export default class Face {
    * @param {HalfEdge} prev
    * @param {HalfEdge} next
    */
-  connectHalfEdges (prev, next) {
+  connectHalfEdges (prev: HalfEdge, next: HalfEdge) {
     let discardedFace
     if (prev.opposite.face === next.opposite.face) {
       // `prev` is remove a redundant edge
@@ -159,7 +160,7 @@ export default class Face {
         // Note: the opposite edge is actually in the face to the right
         // of the face to be destroyed
         oppositeEdge = next.opposite.prev.opposite
-        oppositeFace.mark = DELETED
+        oppositeFace.mark = Mark.Deleted
         discardedFace = oppositeFace
       } else {
         // case:
@@ -228,12 +229,12 @@ export default class Face {
     return discardedFace
   }
 
-  mergeAdjacentFaces (adjacentEdge, discardedFaces) {
+  mergeAdjacentFaces (adjacentEdge: HalfEdge, discardedFaces: Array<Face>) {
     const oppositeEdge = adjacentEdge.opposite
     const oppositeFace = oppositeEdge.face
 
     discardedFaces.push(oppositeFace)
-    oppositeFace.mark = DELETED
+    oppositeFace.mark = Mark.Deleted
 
     // find the chain of edges whose opposite face is `oppositeFace`
     //
@@ -293,7 +294,7 @@ export default class Face {
     return discardedFaces
   }
 
-  collectIndices () {
+  collectIndices (): number[] {
     const indices = []
     let edge = this.edge
     do {
@@ -303,7 +304,7 @@ export default class Face {
     return indices
   }
 
-  static createTriangle (v0, v1, v2, minArea = 0) {
+  static createTriangle (v0: Vertex, v1: Vertex, v2: Vertex, minArea = 0) {
     const face = new Face()
     const e0 = new HalfEdge(v0, face)
     const e1 = new HalfEdge(v1, face)

@@ -1,7 +1,11 @@
-import QuickHull from './QuickHull'
 import getPlaneNormal from 'get-plane-normal'
 
-export default function runner (points, options = {}) {
+import { QuickHull, QuickHullOptions } from './QuickHull'
+import { Point, Face } from './types'
+
+export { Point, Face, QuickHullOptions, QuickHull }
+
+export default function runner (points: Array<Point>, options: QuickHullOptions = {}): Face[] {
   const instance = new QuickHull(points)
   instance.build()
   return instance.collectFaces(options.skipTriangulation)
@@ -10,12 +14,12 @@ export default function runner (points, options = {}) {
 /**
  * Checks if a point is inside the convex hull.
  *
- * @param {Array<number>} point - The point to check.
- * @param {Array<Array<number>>} points - The points used in the space where the
+ * @param {Point} point - The point to check.
+ * @param {Array<Point>} points - The points used in the space where the
  * convex hull is defined.
- * @param {Array<Array<number>>} faces - The faces of the convex hull.
+ * @param {Array<Face>} faces - The faces of the convex hull.
  */
-export function isPointInsideHull (point, points, faces) {
+export function isPointInsideHull (point: Point, points: Array<Point>, faces: Array<Face>) {
   for (let i = 0; i < faces.length; i++) {
     const face = faces[i]
     const a = points[face[0]]

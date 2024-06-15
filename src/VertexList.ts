@@ -1,4 +1,9 @@
-export default class VertexList {
+import { Vertex } from './Vertex'
+
+export class VertexList {
+  head: Vertex | null
+  tail: Vertex | null
+
   constructor () {
     this.head = null
     this.tail = null
@@ -12,10 +17,10 @@ export default class VertexList {
    * Inserts a `node` before `target`, it's assumed that
    * `target` belongs to this doubly linked list
    *
-   * @param {*} target
-   * @param {*} node
+   * @param {Vertex} target
+   * @param {Vertex} node
    */
-  insertBefore (target, node) {
+  insertBefore (target: Vertex, node: Vertex) {
     node.prev = target.prev
     node.next = target
     if (!node.prev) {
@@ -33,7 +38,7 @@ export default class VertexList {
    * @param {Vertex} target
    * @param {Vertex} node
    */
-  insertAfter (target, node) {
+  insertAfter (target: Vertex, node: Vertex) {
     node.prev = target
     node.next = target.next
     if (!node.next) {
@@ -49,9 +54,9 @@ export default class VertexList {
    * Note: `node.next` will be unlinked from `node`
    * Note: if `node` is part of another linked list call `addAll` instead
    *
-   * @param {*} node
+   * @param {Vertex} node
    */
-  add (node) {
+  add (node: Vertex) {
     if (!this.head) {
       this.head = node
     } else {
@@ -68,9 +73,9 @@ export default class VertexList {
    * the difference with `add` is that it correctly sets the position
    * of the node list `tail` property
    *
-   * @param {*} node
+   * @param {Vertex} node
    */
-  addAll (node) {
+  addAll (node: Vertex) {
     if (!this.head) {
       this.head = node
     } else {
@@ -89,9 +94,9 @@ export default class VertexList {
    * Deletes a `node` from this linked list, it's assumed that `node` is a
    * member of this linked list
    *
-   * @param {*} node
+   * @param {Vertex} node
    */
-  remove (node) {
+  remove (node: Vertex) {
     if (!node.prev) {
       this.head = node.next
     } else {
@@ -110,10 +115,10 @@ export default class VertexList {
    * it's assumed that `a` and `b` belong to this list and also that `a`
    * comes before `b` in the linked list
    *
-   * @param {*} a
-   * @param {*} b
+   * @param {Vertex} a
+   * @param {Vertex} b
    */
-  removeChain (a, b) {
+  removeChain (a: Vertex, b: Vertex) {
     if (!a.prev) {
       this.head = b.next
     } else {

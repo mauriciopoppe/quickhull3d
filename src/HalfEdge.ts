@@ -1,10 +1,17 @@
-import distance from 'gl-vec3/distance'
-import squaredDistance from 'gl-vec3/squaredDistance'
+import { distance, squaredDistance } from 'gl-vec3'
+import { Face } from './Face'
+import { Vertex } from './Vertex'
 
 const debug = require('debug')('halfedge')
 
-export default class HalfEdge {
-  constructor (vertex, face) {
+export class HalfEdge {
+  vertex: Vertex
+  face: Face
+  next: HalfEdge | null
+  prev: HalfEdge | null
+  opposite: HalfEdge | null
+
+  constructor (vertex: Vertex, face: Face) {
     this.vertex = vertex
     this.face = face
     this.next = null
@@ -42,7 +49,7 @@ export default class HalfEdge {
     return -1
   }
 
-  setOpposite (edge) {
+  setOpposite (edge: HalfEdge) {
     const me = this
     if (debug.enabled) {
       debug(`opposite ${me.tail().index} <--> ${me.head().index} between ${me.face.collectIndices()}, ${edge.face.collectIndices()}`)

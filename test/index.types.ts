@@ -1,5 +1,6 @@
 // test with `npx check-dts`
-import quickhull3d, { Point, Face, isPointInsideHull } from '../'
+import { Point, Face } from '../src/types'
+import quickhull3d, { isPointInsideHull } from '../src'
 
 const points: Array<Point> = [
   [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1],

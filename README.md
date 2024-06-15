@@ -28,7 +28,7 @@ Click on the image to see a demo!
 
 ```html
 <script type="module">
-  import qh from 'https://cdn.jsdelivr.net/npm/quickhull3d@<version>/dist/quickhull3d.js'
+  import qh from 'https://cdn.jsdelivr.net/npm/quickhull3d@<version>/+esm'
 
   const points = [
     [0, 1, 0],

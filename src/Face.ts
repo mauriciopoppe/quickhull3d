@@ -1,9 +1,10 @@
 import { dot, add, subtract, cross, copy, length, scale, scaleAndAdd, normalize } from 'gl-vec3'
+import { default as $debug } from 'debug'
 
 import { HalfEdge } from './HalfEdge'
 import { Vertex } from './Vertex'
 
-const debug = require('debug')('face')
+const debug = $debug('face')
 
 export enum Mark {
   Visible = 0,

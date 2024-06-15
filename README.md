@@ -37,7 +37,7 @@ import qh from 'quickhull3d'
 ### `qh(points, options)`
 
 **params**
-* `points` {Array} an array of 3d points whose convex hull needs to be computed
+* `points` {Array<Array<number>>} an array of 3d points whose convex hull needs to be computed
 * `options` {Object} (optional)
 * `options.skipTriangulation` {Boolean} True to skip the triangulation of the faces
     (returning n-vertex faces)

@@ -24,7 +24,7 @@ Click on the image to see a demo!
 
 [![demo](./docs/quickhull3d.png)](http://mauriciopoppe.github.io/quickhull3d/)
 
-## Minimal demo (browser only)
+## Minimal browser demo (using v3 or above)
 
 ```html
 <script type="module">

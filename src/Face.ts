@@ -30,7 +30,7 @@ export class Face {
   nVertices: number
   area: number
 
-  constructor () {
+  constructor() {
     this.normal = [-1, -1, -1]
     this.centroid = [-1, -1, -1]
     // signed distance from face to the origin
@@ -42,7 +42,7 @@ export class Face {
     this.nVertices = 0
   }
 
-  getEdge (i: number) {
+  getEdge(i: number) {
     let it = this.edge
     while (i > 0) {
       it = it.next
@@ -55,7 +55,7 @@ export class Face {
     return it
   }
 
-  computeNormal () {
+  computeNormal() {
     const e0 = this.edge
     const e1 = e0.next
     let e2 = e1.next
@@ -79,7 +79,7 @@ export class Face {
     this.normal = scale(this.normal, this.normal, 1 / this.area)
   }
 
-  computeNormalMinArea (minArea: number) {
+  computeNormalMinArea(minArea: number) {
     this.computeNormal()
     if (this.area < minArea) {
       // compute the normal without the longest edge
@@ -112,7 +112,7 @@ export class Face {
     }
   }
 
-  computeCentroid () {
+  computeCentroid() {
     this.centroid = [0, 0, 0]
     let edge = this.edge
     do {
@@ -122,7 +122,7 @@ export class Face {
     scale(this.centroid, this.centroid, 1 / this.nVertices)
   }
 
-  computeNormalAndCentroid (minArea?: number) {
+  computeNormalAndCentroid(minArea?: number) {
     if (typeof minArea !== 'undefined') {
       this.computeNormalMinArea(minArea)
     } else {
@@ -132,7 +132,7 @@ export class Face {
     this.offset = dot(this.normal, this.centroid)
   }
 
-  distanceToPlane (point: number[]) {
+  distanceToPlane(point: number[]) {
     return dot(this.normal, point) - this.offset
   }
 
@@ -144,7 +144,7 @@ export class Face {
    * @param {HalfEdge} prev
    * @param {HalfEdge} next
    */
-  connectHalfEdges (prev: HalfEdge, next: HalfEdge) {
+  connectHalfEdges(prev: HalfEdge, next: HalfEdge) {
     let discardedFace
     if (prev.opposite.face === next.opposite.face) {
       // `prev` is remove a redundant edge
@@ -238,7 +238,7 @@ export class Face {
     return discardedFace
   }
 
-  mergeAdjacentFaces (adjacentEdge: HalfEdge, discardedFaces: Array<Face>) {
+  mergeAdjacentFaces(adjacentEdge: HalfEdge, discardedFaces: Array<Face>) {
     const oppositeEdge = adjacentEdge.opposite
     const oppositeFace = oppositeEdge.face
 
@@ -303,7 +303,7 @@ export class Face {
     return discardedFaces
   }
 
-  collectIndices (): number[] {
+  collectIndices(): number[] {
     const indices = []
     let edge = this.edge
     do {
@@ -313,7 +313,7 @@ export class Face {
     return indices
   }
 
-  static createTriangle (v0: Vertex, v1: Vertex, v2: Vertex, minArea = 0) {
+  static createTriangle(v0: Vertex, v1: Vertex, v2: Vertex, minArea = 0) {
     const face = new Face()
     const e0 = new HalfEdge(v0, face)
     const e1 = new HalfEdge(v1, face)

@@ -6,7 +6,7 @@ import getPlaneNormal from 'get-plane-normal'
 import qh, { isPointInsideHull, QuickHull, Face, Point } from '../src/'
 
 const EPS = 1e-6
-function equalEps (a: number, b: number) {
+function equalEps(a: number, b: number) {
   const assertion = Math.abs(a - b) < EPS
   expect(assertion).toBe(true)
 }
@@ -18,16 +18,11 @@ const tetrahedron: Point[] = [
   [0, 0.5, 0]
 ]
 
-function isConvexHull (points: Point[], faces: Face[]) {
+function isConvexHull(points: Point[], faces: Face[]) {
   const n = points.length
   let nError = 0
   for (let i = 0; i < faces.length; i += 1) {
-    const normal = getPlaneNormal(
-      [],
-      points[faces[i][0]],
-      points[faces[i][1]],
-      points[faces[i][2]]
-    )
+    const normal = getPlaneNormal([], points[faces[i][0]], points[faces[i][1]], points[faces[i][2]])
     const offset = vec3.dot(normal, points[faces[i][0]])
     for (let j = 0; j < n; j += 1) {
       if (faces[i].indexOf(j) === -1) {
@@ -44,7 +39,7 @@ function isConvexHull (points: Point[], faces: Face[]) {
   return nError === 0
 }
 
-function faceShift (f: Face) {
+function faceShift(f: Face) {
   const t = f[0]
   for (let i = 0; i < f.length - 1; i += 1) {
     f[i] = f[i + 1]
@@ -52,7 +47,7 @@ function faceShift (f: Face) {
   f[f.length - 1] = t
 }
 
-function equalShifted (f1: Face, f2: Face) {
+function equalShifted(f1: Face, f2: Face) {
   let equals = 0
   // the length of f1/f2 is the same, checked on equalIndexes
   for (let i = 0; i < f2.length; i += 1) {
@@ -69,7 +64,7 @@ function equalShifted (f1: Face, f2: Face) {
   return !!equals
 }
 
-function equalIndexes (f1: Face[], f2: Face[]) {
+function equalIndexes(f1: Face[], f2: Face[]) {
   expect(f1.length).toEqual(f2.length)
   const f1tof2 = []
   for (let i = 0; i < f1.length; i += 1) {
@@ -93,9 +88,7 @@ function equalIndexes (f1: Face[], f2: Face[]) {
   expect(f1tof2.length).toEqual(f2.length)
 }
 
-
 describe('QuickHull', () => {
-
   it('should have a valid constructor', function () {
     const instance = new QuickHull(tetrahedron)
     expect(instance.tolerance).toBe(-1)
@@ -112,7 +105,7 @@ describe('QuickHull', () => {
     const instance = new QuickHull(tetrahedron)
     const p = tetrahedron
 
-    function area (p1: Point, p2: Point, p3: Point) {
+    function area(p1: Point, p2: Point, p3: Point) {
       const cross = vec3.cross(
         [],
         // @ts-ignore
@@ -162,8 +155,8 @@ describe('QuickHull', () => {
     const hull = qh(tetrahedron)
     expect(Array.isArray(hull)).toBe(true)
     expect(() => {
-      hull.forEach(face => {
-        face.forEach(index => {
+      hull.forEach((face) => {
+        face.forEach((index) => {
           assert(index >= 0 && index <= 3)
         })
       })
@@ -172,31 +165,52 @@ describe('QuickHull', () => {
 
   it('case: tetrahedron', function () {
     const points: Point[] = [
-      [0, 1, 0], [1, -1, 1], [-1, -1, 1], [0, -1, -1]
+      [0, 1, 0],
+      [1, -1, 1],
+      [-1, -1, 1],
+      [0, -1, -1]
     ]
     equalIndexes(qh(points), [
-      [0, 2, 1], [0, 3, 2], [0, 1, 3], [1, 2, 3]
+      [0, 2, 1],
+      [0, 3, 2],
+      [0, 1, 3],
+      [1, 2, 3]
     ])
   })
 
   it('case: box (without triangulation)', function () {
     const points: Point[] = [
-      [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1],
-      [1, 1, 0], [1, 0, 1], [0, 1, 1], [1, 1, 1]
+      [0, 0, 0],
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1],
+      [1, 1, 0],
+      [1, 0, 1],
+      [0, 1, 1],
+      [1, 1, 1]
     ]
     const faces = qh(points, { skipTriangulation: true })
     expect(faces.length).toBe(6)
     equalIndexes(faces, [
-      [6, 2, 0, 3], [1, 4, 7, 5],
-      [6, 7, 4, 2], [3, 0, 1, 5],
-      [5, 7, 6, 3], [0, 2, 4, 1]
+      [6, 2, 0, 3],
+      [1, 4, 7, 5],
+      [6, 7, 4, 2],
+      [3, 0, 1, 5],
+      [5, 7, 6, 3],
+      [0, 2, 4, 1]
     ])
   })
 
   it('case: box (with triangulation)', function () {
     const points: Point[] = [
-      [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1],
-      [1, 1, 0], [1, 0, 1], [0, 1, 1], [1, 1, 1]
+      [0, 0, 0],
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1],
+      [1, 1, 0],
+      [1, 0, 1],
+      [0, 1, 1],
+      [1, 1, 1]
     ]
     const faces = qh(points)
     expect(faces.length).toBe(12)
@@ -204,8 +218,14 @@ describe('QuickHull', () => {
 
   it('case: box (without triangulation, additional points inside)', function () {
     const points: Point[] = [
-      [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1],
-      [1, 1, 0], [1, 0, 1], [0, 1, 1], [1, 1, 1]
+      [0, 0, 0],
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1],
+      [1, 1, 0],
+      [1, 0, 1],
+      [0, 1, 1],
+      [1, 1, 1]
     ]
     const padding = 0.000001
     for (let i = 0; i < 1000; i += 1) {
@@ -218,20 +238,33 @@ describe('QuickHull', () => {
     const faces = qh(points, { skipTriangulation: true })
     expect(faces.length).toBe(6)
     equalIndexes(faces, [
-      [6, 2, 0, 3], [1, 4, 7, 5],
-      [6, 7, 4, 2], [3, 0, 1, 5],
-      [5, 7, 6, 3], [0, 2, 4, 1]
+      [6, 2, 0, 3],
+      [1, 4, 7, 5],
+      [6, 7, 4, 2],
+      [3, 0, 1, 5],
+      [5, 7, 6, 3],
+      [0, 2, 4, 1]
     ])
   })
 
   it('case: octahedron', function () {
     const points: Point[] = [
-      [1, 0, 0], [0, 1, 0], [0, 0, 1],
-      [-1, 0, 0], [0, -1, 0], [0, 0, -1]
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1],
+      [-1, 0, 0],
+      [0, -1, 0],
+      [0, 0, -1]
     ]
     equalIndexes(qh(points), [
-      [0, 1, 2], [0, 2, 4], [0, 5, 1], [0, 4, 5],
-      [3, 2, 1], [3, 1, 5], [3, 4, 2], [3, 5, 4]
+      [0, 1, 2],
+      [0, 2, 4],
+      [0, 5, 1],
+      [0, 4, 5],
+      [3, 2, 1],
+      [3, 1, 5],
+      [3, 4, 2],
+      [3, 5, 4]
     ])
   })
 
@@ -280,8 +313,14 @@ describe('QuickHull', () => {
 
   it('point inside hull', function () {
     const points: Point[] = [
-      [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1],
-      [1, 1, 0], [1, 0, 1], [0, 1, 1], [1, 1, 1]
+      [0, 0, 0],
+      [1, 0, 0],
+      [0, 1, 0],
+      [0, 0, 1],
+      [1, 1, 0],
+      [1, 0, 1],
+      [0, 1, 1],
+      [1, 1, 1]
     ]
     const faces = qh(points)
     expect(faces.length).toBe(12)

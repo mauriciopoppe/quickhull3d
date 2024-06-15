@@ -13,7 +13,7 @@ export class HalfEdge {
   prev: HalfEdge | null
   opposite: HalfEdge | null
 
-  constructor (vertex: Vertex, face: Face) {
+  constructor(vertex: Vertex, face: Face) {
     this.vertex = vertex
     this.face = face
     this.next = null
@@ -21,40 +21,34 @@ export class HalfEdge {
     this.opposite = null
   }
 
-  head () {
+  head() {
     return this.vertex
   }
 
-  tail () {
-    return this.prev
-      ? this.prev.vertex
-      : null
+  tail() {
+    return this.prev ? this.prev.vertex : null
   }
 
-  length () {
+  length() {
     if (this.tail()) {
-      return distance(
-        this.tail().point,
-        this.head().point
-      )
+      return distance(this.tail().point, this.head().point)
     }
     return -1
   }
 
-  lengthSquared () {
+  lengthSquared() {
     if (this.tail()) {
-      return squaredDistance(
-        this.tail().point,
-        this.head().point
-      )
+      return squaredDistance(this.tail().point, this.head().point)
     }
     return -1
   }
 
-  setOpposite (edge: HalfEdge) {
+  setOpposite(edge: HalfEdge) {
     const me = this
     if (debug.enabled) {
-      debug(`opposite ${me.tail().index} <--> ${me.head().index} between ${me.face.collectIndices()}, ${edge.face.collectIndices()}`)
+      debug(
+        `opposite ${me.tail().index} <--> ${me.head().index} between ${me.face.collectIndices()}, ${edge.face.collectIndices()}`
+      )
     }
     this.opposite = edge
     edge.opposite = this

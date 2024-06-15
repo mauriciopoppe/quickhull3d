@@ -4,12 +4,12 @@ export class VertexList {
   head: Vertex | null
   tail: Vertex | null
 
-  constructor () {
+  constructor() {
     this.head = null
     this.tail = null
   }
 
-  clear () {
+  clear() {
     this.head = this.tail = null
   }
 
@@ -20,7 +20,7 @@ export class VertexList {
    * @param {Vertex} target
    * @param {Vertex} node
    */
-  insertBefore (target: Vertex, node: Vertex) {
+  insertBefore(target: Vertex, node: Vertex) {
     node.prev = target.prev
     node.next = target
     if (!node.prev) {
@@ -38,7 +38,7 @@ export class VertexList {
    * @param {Vertex} target
    * @param {Vertex} node
    */
-  insertAfter (target: Vertex, node: Vertex) {
+  insertAfter(target: Vertex, node: Vertex) {
     node.prev = target
     node.next = target.next
     if (!node.next) {
@@ -56,7 +56,7 @@ export class VertexList {
    *
    * @param {Vertex} node
    */
-  add (node: Vertex) {
+  add(node: Vertex) {
     if (!this.head) {
       this.head = node
     } else {
@@ -75,7 +75,7 @@ export class VertexList {
    *
    * @param {Vertex} node
    */
-  addAll (node: Vertex) {
+  addAll(node: Vertex) {
     if (!this.head) {
       this.head = node
     } else {
@@ -96,7 +96,7 @@ export class VertexList {
    *
    * @param {Vertex} node
    */
-  remove (node: Vertex) {
+  remove(node: Vertex) {
     if (!node.prev) {
       this.head = node.next
     } else {
@@ -118,7 +118,7 @@ export class VertexList {
    * @param {Vertex} a
    * @param {Vertex} b
    */
-  removeChain (a: Vertex, b: Vertex) {
+  removeChain(a: Vertex, b: Vertex) {
     if (!a.prev) {
       this.head = b.next
     } else {
@@ -132,11 +132,11 @@ export class VertexList {
     }
   }
 
-  first () {
+  first() {
     return this.head
   }
 
-  isEmpty () {
+  isEmpty() {
     return !this.head
   }
 }

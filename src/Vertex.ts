@@ -12,7 +12,7 @@ export class Vertex {
   // face is the face that's able to see this point
   face: Face | null
 
-  constructor (point: Point, index: number) {
+  constructor(point: Point, index: number) {
     this.point = point
     this.index = index
     this.next = null

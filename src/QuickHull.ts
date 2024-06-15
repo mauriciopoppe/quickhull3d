@@ -19,7 +19,7 @@ enum MergeType {
 }
 
 export class QuickHullOptions {
-  skipTriangulation ?: boolean
+  skipTriangulation?: boolean
 }
 
 export class QuickHull {
@@ -45,7 +45,7 @@ export class QuickHull {
 
   vertexPointIndices: Array<number>
 
-  constructor (points?: Array<Point>) {
+  constructor(points?: Array<Point>) {
     if (!Array.isArray(points)) {
       throw TypeError('input is not a valid array')
     }
@@ -79,7 +79,7 @@ export class QuickHull {
     this.vertexPointIndices = []
   }
 
-  addVertexToFace (vertex: Vertex, face: Face) {
+  addVertexToFace(vertex: Vertex, face: Face) {
     vertex.face = face
     if (!face.outside) {
       this.claimed.add(vertex)
@@ -97,7 +97,7 @@ export class QuickHull {
    * @param {Vertex} vertex
    * @param {Face} face
    */
-  removeVertexFromFace (vertex: Vertex, face: Face) {
+  removeVertexFromFace(vertex: Vertex, face: Face) {
     if (vertex === face.outside) {
       // fix face.outside link
       if (vertex.next && vertex.next.face === face) {
@@ -117,7 +117,7 @@ export class QuickHull {
    *
    * @param {Face} face
    */
-  removeAllVerticesFromFace (face: Face) {
+  removeAllVerticesFromFace(face: Face) {
     if (face.outside) {
       // pointer to the last vertex of this face
       // [..., outside, ..., end, outside, ...]
@@ -153,7 +153,7 @@ export class QuickHull {
    * @param {Face} face
    * @param {Face} [absorbingFace]
    */
-  deleteFaceVertices (face: Face, absorbingFace?: Face) {
+  deleteFaceVertices(face: Face, absorbingFace?: Face) {
     const faceVertices = this.removeAllVerticesFromFace(face)
     if (faceVertices) {
       if (!absorbingFace) {
@@ -188,7 +188,7 @@ export class QuickHull {
    *
    * @param {Faces[]} newFaces
    */
-  resolveUnclaimedPoints (newFaces: Array<Face>) {
+  resolveUnclaimedPoints(newFaces: Array<Face>) {
     // cache next vertex so that if `vertex.next` is destroyed it's still
     // recoverable
     let vertexNext = this.unclaimed.first()
@@ -219,7 +219,7 @@ export class QuickHull {
   /**
    * Computes the extremes of a tetrahedron which will be the initial hull
    */
-  computeExtremes () {
+  computeExtremes() {
     const me = this
     const min = []
     const max = []
@@ -259,11 +259,12 @@ export class QuickHull {
     }
 
     // compute epsilon
-    this.tolerance = 3 * Number.EPSILON * (
-      Math.max(Math.abs(min[0]), Math.abs(max[0])) +
-      Math.max(Math.abs(min[1]), Math.abs(max[1])) +
-      Math.max(Math.abs(min[2]), Math.abs(max[2]))
-    )
+    this.tolerance =
+      3 *
+      Number.EPSILON *
+      (Math.max(Math.abs(min[0]), Math.abs(max[0])) +
+        Math.max(Math.abs(min[1]), Math.abs(max[1])) +
+        Math.max(Math.abs(min[2]), Math.abs(max[2])))
     if (debug.enabled) {
       debug('tolerance %d', me.tolerance)
     }
@@ -274,7 +275,7 @@ export class QuickHull {
    * Compues the initial tetrahedron assigning to its faces all the points that
    * are candidates to form part of the hull
    */
-  createInitialSimplex () {
+  createInitialSimplex() {
     const vertices = this.vertices
     const [min, max] = this.computeExtremes()
 
@@ -300,9 +301,7 @@ export class QuickHull {
     for (let i = 0; i < this.vertices.length; i += 1) {
       const vertex = this.vertices[i]
       if (vertex !== v0 && vertex !== v1) {
-        const distance = pointLineDistance(
-          vertex.point, v0.point, v1.point
-        )
+        const distance = pointLineDistance(vertex.point, v0.point, v1.point)
         if (distance > maxDistance) {
           maxDistance = distance
           v2 = vertex
@@ -417,7 +416,7 @@ export class QuickHull {
     }
   }
 
-  reindexFaceAndVertices () {
+  reindexFaceAndVertices() {
     // remove inactive faces
     const activeFaces = []
     for (let i = 0; i < this.faces.length; i += 1) {
@@ -429,7 +428,7 @@ export class QuickHull {
     this.faces = activeFaces
   }
 
-  collectFaces (skipTriangulation: boolean): IFace[] {
+  collectFaces(skipTriangulation: boolean): IFace[] {
     const faceIndices: IFace[] = []
     for (let i = 0; i < this.faces.length; i += 1) {
       if (this.faces[i].mark !== Mark.Visible) {
@@ -440,9 +439,7 @@ export class QuickHull {
         faceIndices.push(indices)
       } else {
         for (let j = 0; j < indices.length - 2; j += 1) {
-          faceIndices.push(
-            [indices[0], indices[j + 1], indices[j + 2]]
-          )
+          faceIndices.push([indices[0], indices[j + 1], indices[j + 2]])
         }
       }
     }
@@ -457,7 +454,7 @@ export class QuickHull {
    *  - otherwise for each `vertex` that face sees find the one furthest away
    *  from `face`
    */
-  nextVertexToAdd () {
+  nextVertexToAdd() {
     if (!this.claimed.isEmpty()) {
       let eyeVertex: Vertex, vertex: Vertex
       let maxDistance = 0
@@ -484,7 +481,7 @@ export class QuickHull {
    * @param {HalfEdge[]} horizon - The edges that form part of the horizon in
    * ccw order
    */
-  computeHorizon (eyePoint: number[], crossEdge: HalfEdge, face: Face, horizon: HalfEdge[]) {
+  computeHorizon(eyePoint: number[], crossEdge: HalfEdge, face: Face, horizon: HalfEdge[]) {
     // moves face's vertices to the `unclaimed` vertex list
     this.deleteFaceVertices(face)
 
@@ -532,7 +529,7 @@ export class QuickHull {
    * @param {HalfEdge} horizonEdge
    * @return {HalfEdge} The half edge whose vertex is the eyeVertex
    */
-  addAdjoiningFace (eyeVertex: Vertex, horizonEdge: HalfEdge): HalfEdge {
+  addAdjoiningFace(eyeVertex: Vertex, horizonEdge: HalfEdge): HalfEdge {
     // all the half edges are created in ccw order thus the face is always
     // pointing outside the hull
     // edges:
@@ -547,11 +544,7 @@ export class QuickHull {
     //          horizon.tail --- horizon.head
     //                        2
     //
-    const face = Face.createTriangle(
-      eyeVertex,
-      horizonEdge.tail(),
-      horizonEdge.head()
-    )
+    const face = Face.createTriangle(eyeVertex, horizonEdge.tail(), horizonEdge.head())
     this.faces.push(face)
     // join face.getEdge(-1) with the horizon's opposite edge
     // face.getEdge(-1) = face.getEdge(2)
@@ -566,7 +559,7 @@ export class QuickHull {
    * @param {Vertex} eyeVertex
    * @param {HalfEdge[]} horizon - A chain of half edges in ccw order
    */
-  addNewFaces (eyeVertex: Vertex, horizon: HalfEdge[]) {
+  addNewFaces(eyeVertex: Vertex, horizon: HalfEdge[]) {
     this.newFaces = []
     let firstSideEdge: HalfEdge, previousSideEdge: HalfEdge
     for (let i = 0; i < horizon.length; i += 1) {
@@ -591,7 +584,7 @@ export class QuickHull {
    *
    * @param {HalfEdge} edge
    */
-  oppositeFaceDistance (edge: HalfEdge) {
+  oppositeFaceDistance(edge: HalfEdge) {
     // - A positive number when the centroid of the opposite face is above the
     //   face i.e. when the faces are concave
     // - A negative number when the centroid of the opposite face is below the
@@ -634,7 +627,7 @@ export class QuickHull {
    * @param {Face} face
    * @param {MergeType} mergeType
    */
-  doAdjacentMerge (face: Face, mergeType: MergeType) {
+  doAdjacentMerge(face: Face, mergeType: MergeType) {
     let edge = face.edge
     let convex = true
     let it = 0
@@ -661,8 +654,10 @@ export class QuickHull {
       //      dot(v, not visible face normal) - not visible offset > -tolerance
       //
       if (mergeType === MergeType.NonConvex) {
-        if (this.oppositeFaceDistance(edge) > -this.tolerance ||
-            this.oppositeFaceDistance(edge.opposite) > -this.tolerance) {
+        if (
+          this.oppositeFaceDistance(edge) > -this.tolerance ||
+          this.oppositeFaceDistance(edge.opposite) > -this.tolerance
+        ) {
           merge = true
         }
       } else {
@@ -720,7 +715,7 @@ export class QuickHull {
    *
    * @param {Vertex} eyeVertex
    */
-  addVertexToHull (eyeVertex: Vertex) {
+  addVertexToHull(eyeVertex: Vertex) {
     const horizon: HalfEdge[] = []
 
     this.unclaimed.clear()
@@ -730,9 +725,12 @@ export class QuickHull {
     this.removeVertexFromFace(eyeVertex, eyeVertex.face)
     this.computeHorizon(eyeVertex.point, null, eyeVertex.face, horizon)
     if (debug.enabled) {
-      debug('horizon %j', horizon.map(function (edge) {
-        return edge.head().index
-      }))
+      debug(
+        'horizon %j',
+        horizon.map(function (edge) {
+          return edge.head().index
+        })
+      )
     }
     this.addNewFaces(eyeVertex, horizon)
 
@@ -767,7 +765,7 @@ export class QuickHull {
     this.resolveUnclaimedPoints(this.newFaces)
   }
 
-  build () {
+  build() {
     let iterations = 0
     let eyeVertex: Vertex
     this.createInitialSimplex()

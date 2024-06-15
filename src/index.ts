@@ -5,7 +5,7 @@ import { Point, Face } from './types'
 
 export { Point, Face, QuickHullOptions, QuickHull }
 
-export default function runner (points: Array<Point>, options: QuickHullOptions = {}): Face[] {
+export default function runner(points: Array<Point>, options: QuickHullOptions = {}): Face[] {
   const instance = new QuickHull(points)
   instance.build()
   return instance.collectFaces(options.skipTriangulation)
@@ -19,7 +19,7 @@ export default function runner (points: Array<Point>, options: QuickHullOptions 
  * convex hull is defined.
  * @param {Array<Face>} faces - The faces of the convex hull.
  */
-export function isPointInsideHull (point: Point, points: Array<Point>, faces: Array<Face>) {
+export function isPointInsideHull(point: Point, points: Array<Point>, faces: Array<Face>) {
   for (let i = 0; i < faces.length; i++) {
     const face = faces[i]
     const a = points[face[0]]
@@ -35,15 +35,9 @@ export function isPointInsideHull (point: Point, points: Array<Point>, faces: Ar
     const planeNormal = getPlaneNormal([], a, b, c)
 
     // Get the point with respect to the first vertex of the face.
-    const pointAbsA = [
-      point[0] - a[0],
-      point[1] - a[1],
-      point[2] - a[2]
-    ]
+    const pointAbsA = [point[0] - a[0], point[1] - a[1], point[2] - a[2]]
 
-    const dotProduct = planeNormal[0] * pointAbsA[0] +
-      planeNormal[1] * pointAbsA[1] +
-      planeNormal[2] * pointAbsA[2]
+    const dotProduct = planeNormal[0] * pointAbsA[0] + planeNormal[1] * pointAbsA[1] + planeNormal[2] * pointAbsA[2]
 
     if (dotProduct > 0) {
       return false

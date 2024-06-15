@@ -33,6 +33,7 @@
     "build": "npm run clean && npm run build:typescript && npm run build:webpack",
     "build:webpack": "NODE_ENV=production webpack",
     "build:typescript": "tsc",
+    "deploy": "node deploy.cjs",
     "preversion": "npm run lint -s && npm run test -s && npm run build -s"
   },
   "standard": {
@@ -63,6 +64,7 @@
     "@jest/globals": "^29.7.0",
     "@types/gl-vec3": "^1.1.4",
     "@types/node": "^20.14.2",
+    "gh-pages": "^6.1.1",
     "jest": "^29.0.1",
     "rimraf": "^3.0.2",
     "standard": "^17.0.0",

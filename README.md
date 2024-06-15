@@ -20,7 +20,9 @@ Additional implementation material:
 
 ## Demo
 
-[![Edit mQ7AgN1n](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/mQ7AgN1n)
+Click on the image to see a demo!
+
+[![demo](./docs/quickhull3d.png)](http://mauriciopoppe.github.io/quickhull3d/)
 
 ## Installation
 

@@ -1,6 +1,6 @@
 import pointLineDistance from 'point-line-distance'
 import getPlaneNormal from 'get-plane-normal'
-import { dot } from 'gl-vec3'
+import dot from 'gl-vec3/dot'
 import { default as $debug } from 'debug'
 
 import { Point, Face as IFace } from './types'
@@ -18,7 +18,7 @@ enum MergeType {
   NonConvex
 }
 
-export interface QuickHullOptions {
+export class QuickHullOptions {
   skipTriangulation ?: boolean
 }
 

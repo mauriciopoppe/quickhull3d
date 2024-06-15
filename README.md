@@ -119,7 +119,7 @@ qh(points)
 Using the constructor:
 
 ```javascript
-import QuickHull from 'quickhull3d/dist/QuickHull'
+import { QuickHull } from 'quickhull3d'
 const points = [
   [0, 1, 0],
   [1, -1, 1],

@@ -1,13 +1,11 @@
 const path = require('path')
 const webpack = require('webpack')
+
 const isProduction = process.env.NODE_ENV === 'production'
 
 const plugins = []
 if (isProduction) {
-  plugins.push(new webpack.NormalModuleReplacementPlugin(
-    /debug/,
-    './debug.ts'
-  ))
+  plugins.push(new webpack.NormalModuleReplacementPlugin(/debug/, './debug.ts'))
 }
 
 module.exports = {
@@ -27,17 +25,14 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
+        test: /\.[jt]sx?$/,
+        loader: 'ts-loader',
         exclude: /node_modules/
       }
     ]
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js']
-  },
-  stats: {
-    errorDetails: true
   },
   plugins
 }

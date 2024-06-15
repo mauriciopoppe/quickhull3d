@@ -1,10 +1,10 @@
-import distance from 'gl-vec3/distance'
-import squaredDistance from 'gl-vec3/squaredDistance'
-import { Face } from './Face'
-import { Vertex } from './Vertex'
+import { distance, squaredDistance } from 'gl-matrix/vec3'
 import { default as $debug } from 'debug'
 
-const debug = $debug('halfedge')
+import { Face } from './Face'
+import { Vertex } from './Vertex'
+
+const debug = $debug('quickhull3d:halfedge')
 
 export class HalfEdge {
   vertex: Vertex

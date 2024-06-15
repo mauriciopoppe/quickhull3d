@@ -1,11 +1,12 @@
 import getPlaneNormal from 'get-plane-normal'
 
 import { QuickHull, QuickHullOptions } from './QuickHull'
-import { Point, Face } from './types'
+import { Face, Vec3Like } from './types'
 
-export { Point, Face, QuickHullOptions, QuickHull }
+export type Point = Vec3Like
+export { Vec3Like, Face, QuickHullOptions, QuickHull }
 
-export default function runner(points: Array<Point>, options: QuickHullOptions = {}): Face[] {
+export default function runner(points: Array<Vec3Like>, options: QuickHullOptions = {}): Face[] {
   const instance = new QuickHull(points)
   instance.build()
   return instance.collectFaces(options.skipTriangulation)
@@ -19,7 +20,7 @@ export default function runner(points: Array<Point>, options: QuickHullOptions =
  * convex hull is defined.
  * @param {Array<Face>} faces - The faces of the convex hull.
  */
-export function isPointInsideHull(point: Point, points: Array<Point>, faces: Array<Face>) {
+export function isPointInsideHull(point: Vec3Like, points: Array<Vec3Like>, faces: Array<Face>) {
   for (let i = 0; i < faces.length; i++) {
     const face = faces[i]
     const a = points[face[0]]
@@ -32,7 +33,7 @@ export function isPointInsideHull(point: Point, points: Array<Point>, faces: Arr
     // 3. Calculate the dot product of the normal and the vector.
     // 4. If the dot product is positive, the point is outside the face.
 
-    const planeNormal = getPlaneNormal([], a, b, c)
+    const planeNormal = getPlaneNormal(new Float32Array(3), a, b, c)
 
     // Get the point with respect to the first vertex of the face.
     const pointAbsA = [point[0] - a[0], point[1] - a[1], point[2] - a[2]]

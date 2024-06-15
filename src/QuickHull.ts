@@ -1,15 +1,19 @@
 import pointLineDistance from 'point-line-distance'
 import getPlaneNormal from 'get-plane-normal'
-import dot from 'gl-vec3/dot'
+import monotoneHull from 'monotone-convex-hull-2d'
+import { scale, dot } from 'gl-matrix/vec3'
+import { fromValues, transformMat4 } from 'gl-matrix/vec4'
+import { fromRotationTranslation } from 'gl-matrix/mat4'
+import { rotationTo } from 'gl-matrix/quat'
 import { default as $debug } from 'debug'
 
-import { Point, Face as IFace } from './types'
+import { Face as IFace } from './types'
 import { VertexList } from './VertexList'
 import { Vertex } from './Vertex'
 import { HalfEdge } from './HalfEdge'
 import { Face, Mark } from './Face'
 
-const debug = $debug('quickhull')
+const debug = $debug('quickhull3d:quickhull')
 
 // merge types
 // non convex with respect to the large face
@@ -45,7 +49,7 @@ export class QuickHull {
 
   vertexPointIndices: Array<number>
 
-  constructor(points?: Array<Point>) {
+  constructor(points?: Array<Vec3Like>) {
     if (!Array.isArray(points)) {
       throw TypeError('input is not a valid array')
     }
@@ -217,17 +221,75 @@ export class QuickHull {
   }
 
   /**
+   * Checks if all the points belong to a plane (2d degenerate case)
+   */
+  allPointsBelongToPlane(v0: Vertex, v1: Vertex, v2: Vertex) {
+    const normal = getPlaneNormal(new Float32Array(3), v0.point, v1.point, v2.point)
+    for (const vertex of this.vertices) {
+      const dist = dot(vertex.point, normal)
+      if (dist > this.tolerance) {
+        // A vertex is not part of the plane formed by ((v0 - v1) X (v0 - v2))
+        return false
+      }
+    }
+    return true
+  }
+
+  /**
+   * Computes the convex hull of a plane.
+   */
+  convexHull2d(v0: Vertex, v1: Vertex, v2: Vertex) {
+    const planeNormal = getPlaneNormal(new Float32Array(3), v0.point, v1.point, v2.point)
+
+    // To do the rotation let's use a quaternion
+    // first let's find a target plane to rotate to e.g. the x-z plane with a normal equal to the y-axis
+    let basisPlaneNormal: [number, number, number] = [0, 1, 0]
+
+    // Create a quaternion that represents the rotation between normal and the basisPlaneNormal.
+    const rotation = rotationTo(new Float32Array(4), planeNormal, basisPlaneNormal)
+    // Create a vec3 that represents a translation from the plane to the origin.
+    const translation = scale(new Float32Array(3), planeNormal, -dot(v0.point, planeNormal))
+    // Create a rotation -> translation matrix from a quaternion and a vec3
+    const matrix = fromRotationTranslation(new Float32Array(16), rotation, translation)
+    const transformedVertices = []
+    for (const vertex of this.vertices) {
+      const a = fromValues(vertex.point[0], vertex.point[1], vertex.point[2], 0)
+      const aP = transformMat4(new Float32Array(4), a, matrix)
+
+      // Make sure that the y value is close to 0
+      if (debug.enabled) {
+        if (aP[1] > this.tolerance) {
+          debug(`ERROR: point ${aP} has an unexpected y value, it should be less than ${this.tolerance}`)
+        }
+      }
+      transformedVertices.push([aP[0], aP[2]])
+    }
+
+    // 2d convex hull.
+    const hull = monotoneHull(transformedVertices)
+
+    // There's a single face with the indexes of the hull.
+    const vertices: Vertex[] = []
+    for (const i of hull) {
+      vertices.push(this.vertices[i])
+    }
+
+    const face = Face.fromVertices(vertices)
+    this.faces = [face]
+  }
+
+  /**
    * Computes the extremes of a tetrahedron which will be the initial hull
    */
-  computeExtremes() {
+  computeTetrahedronExtremes(): Vertex[] {
     const me = this
     const min = []
     const max = []
 
     // min vertex on the x,y,z directions
-    const minVertices = []
+    const minVertices: Vertex[] = []
     // max vertex on the x,y,z directions
-    const maxVertices = []
+    const maxVertices: Vertex[] = []
 
     // initially assume that the first vertex is the min/max
     for (let i = 0; i < 3; i += 1) {
@@ -268,16 +330,6 @@ export class QuickHull {
     if (debug.enabled) {
       debug('tolerance %d', me.tolerance)
     }
-    return [minVertices, maxVertices]
-  }
-
-  /**
-   * Compues the initial tetrahedron assigning to its faces all the points that
-   * are candidates to form part of the hull
-   */
-  createInitialSimplex() {
-    const vertices = this.vertices
-    const [min, max] = this.computeExtremes()
 
     // Find the two vertices with the greatest 1d separation
     // (max.x - min.x)
@@ -286,14 +338,14 @@ export class QuickHull {
     let maxDistance = 0
     let indexMax = 0
     for (let i = 0; i < 3; i += 1) {
-      const distance = max[i].point[i] - min[i].point[i]
+      const distance = maxVertices[i].point[i] - minVertices[i].point[i]
       if (distance > maxDistance) {
         maxDistance = distance
         indexMax = i
       }
     }
-    const v0 = min[indexMax]
-    const v1 = max[indexMax]
+    const v0 = minVertices[indexMax]
+    const v1 = maxVertices[indexMax]
     let v2: Vertex, v3: Vertex
 
     // the next vertex is the one farthest to the line formed by `v0` and `v1`
@@ -311,7 +363,7 @@ export class QuickHull {
 
     // the next vertes is the one farthest to the plane `v0`, `v1`, `v2`
     // normalize((v2 - v1) x (v0 - v1))
-    const normal = getPlaneNormal([], v0.point, v1.point, v2.point)
+    const normal = getPlaneNormal(new Float32Array(3), v0.point, v1.point, v2.point)
     // distance from the origin to the plane
     const distPO = dot(v0.point, normal)
     maxDistance = -1
@@ -325,6 +377,17 @@ export class QuickHull {
         }
       }
     }
+
+    return [v0, v1, v2, v3]
+  }
+
+  /**
+   * Compues the initial tetrahedron assigning to its faces all the points that
+   * are candidates to form part of the hull
+   */
+  createInitialSimplex(v0: Vertex, v1: Vertex, v2: Vertex, v3: Vertex) {
+    const normal = getPlaneNormal(new Float32Array(3), v0.point, v1.point, v2.point)
+    const distPO = dot(v0.point, normal)
 
     // initial simplex
     // Taken from http://everything2.com/title/How+to+paint+a+tetrahedron
@@ -396,10 +459,11 @@ export class QuickHull {
     }
 
     // initial assignment of vertices to the faces of the tetrahedron
+    const vertices = this.vertices
     for (let i = 0; i < vertices.length; i += 1) {
       const vertex = vertices[i]
       if (vertex !== v0 && vertex !== v1 && vertex !== v2 && vertex !== v3) {
-        maxDistance = this.tolerance
+        let maxDistance = this.tolerance
         let maxFace: Face
         for (let j = 0; j < 4; j += 1) {
           const distance = faces[j].distanceToPlane(vertex.point)
@@ -481,7 +545,7 @@ export class QuickHull {
    * @param {HalfEdge[]} horizon - The edges that form part of the horizon in
    * ccw order
    */
-  computeHorizon(eyePoint: number[], crossEdge: HalfEdge, face: Face, horizon: HalfEdge[]) {
+  computeHorizon(eyePoint: Vec3Like, crossEdge: HalfEdge, face: Face, horizon: HalfEdge[]) {
     // moves face's vertices to the `unclaimed` vertex list
     this.deleteFaceVertices(face)
 
@@ -765,17 +829,23 @@ export class QuickHull {
     this.resolveUnclaimedPoints(this.newFaces)
   }
 
-  build() {
+  build(): QuickHull {
     let iterations = 0
     let eyeVertex: Vertex
-    this.createInitialSimplex()
+    const [v0, v1, v2, v3] = this.computeTetrahedronExtremes()
+    if (this.allPointsBelongToPlane(v0, v1, v2)) {
+      this.convexHull2d(v0, v1, v2)
+      return this
+    }
+    this.createInitialSimplex(v0, v1, v2, v3)
     while ((eyeVertex = this.nextVertexToAdd())) {
       iterations += 1
-      debug('== iteration %j ==', iterations)
+      debug(`== iteration ${iterations} ==`)
       debug('next vertex to add = %d %j', eyeVertex.index, eyeVertex.point)
       this.addVertexToHull(eyeVertex)
-      debug('end')
+      debug(`== end iteration ${iterations}`)
     }
     this.reindexFaceAndVertices()
+    return this
   }
 }

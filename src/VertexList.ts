@@ -1,8 +1,8 @@
 import { Vertex } from './Vertex'
 
 export class VertexList {
-  head: Vertex | null
-  tail: Vertex | null
+  private head: Vertex | null
+  private tail: Vertex | null
 
   constructor() {
     this.head = null

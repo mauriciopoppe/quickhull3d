@@ -1,9 +1,9 @@
 import { expect, describe, it } from '@jest/globals'
 import assert from 'assert'
-import vec3 from 'gl-vec3'
+import { dot, cross, subtract, length } from 'gl-matrix/vec3'
 import getPlaneNormal from 'get-plane-normal'
 
-import qh, { isPointInsideHull, QuickHull, Face, Point } from '../src/'
+import qh, { isPointInsideHull, QuickHull, Face, Vec3Like } from '../src/'
 
 const EPS = 1e-6
 function equalEps(a: number, b: number) {
@@ -11,26 +11,37 @@ function equalEps(a: number, b: number) {
   expect(assertion).toBe(true)
 }
 
-const tetrahedron: Point[] = [
+const cube: Vec3Like[] = [
+  [0, 0, 0],
+  [1, 0, 0],
+  [0, 1, 0],
+  [1, 1, 0],
+  [0, 0, 1],
+  [1, 0, 1],
+  [0, 1, 1],
+  [1, 1, 1]
+]
+
+const tetrahedron: Vec3Like[] = [
   [-2, 0, 0],
   [2, 0, 0],
   [0, 0, 1],
   [0, 0.5, 0]
 ]
 
-function isConvexHull(points: Point[], faces: Face[]) {
+function isConvexHull(points: Vec3Like[], faces: Face[]) {
   const n = points.length
   let nError = 0
   for (let i = 0; i < faces.length; i += 1) {
-    const normal = getPlaneNormal([], points[faces[i][0]], points[faces[i][1]], points[faces[i][2]])
-    const offset = vec3.dot(normal, points[faces[i][0]])
+    const normal = getPlaneNormal(new Float32Array(3), points[faces[i][0]], points[faces[i][1]], points[faces[i][2]])
+    const offset = dot(normal, points[faces[i][0]])
     for (let j = 0; j < n; j += 1) {
       if (faces[i].indexOf(j) === -1) {
-        const aboveFace = vec3.dot(points[j], normal) > offset + EPS
+        const aboveFace = dot(points[j], normal) > offset + EPS
         if (aboveFace) {
           console.log('points', points)
           console.log('face %j with index %d', faces[i], j)
-          console.log('%d should be less than %d', vec3.dot(points[j], normal), offset)
+          console.log('%d should be less than %d', dot(points[j], normal), offset)
         }
         nError += Number(aboveFace)
       }
@@ -105,19 +116,20 @@ describe('QuickHull', () => {
     const instance = new QuickHull(tetrahedron)
     const p = tetrahedron
 
-    function area(p1: Point, p2: Point, p3: Point) {
-      const cross = vec3.cross(
+    function area(p1: Vec3Like, p2: Vec3Like, p3: Vec3Like) {
+      const c = cross(
         [],
         // @ts-ignore
-        vec3.subtract([], p2, p1),
+        subtract([], p2, p1),
         // @ts-ignore
-        vec3.subtract([], p3, p1)
+        subtract([], p3, p1)
       )
       // @ts-ignore
-      return vec3.length(cross)
+      return length(c)
     }
 
-    instance.createInitialSimplex()
+    const [v0, v1, v2, v3] = instance.computeTetrahedronExtremes()
+    instance.createInitialSimplex(v0, v1, v2, v3)
     expect(instance.faces.length).toBe(4)
     // areas (note that the area for qh is the area of the paralellogram)
     equalEps(instance.faces[0].area, area(p[0], p[1], p[2]))
@@ -135,7 +147,7 @@ describe('QuickHull', () => {
   })
 
   it('should compute the next vertex to add', function () {
-    const p: Point[] = [
+    const p: Vec3Like[] = [
       [-100, 0, 0],
       [100, 0, 0],
       [0, 0, 100],
@@ -146,7 +158,8 @@ describe('QuickHull', () => {
       [0, -3, 0]
     ]
     const instance = new QuickHull(p)
-    instance.createInitialSimplex()
+    const [v0, v1, v2, v3] = instance.computeTetrahedronExtremes()
+    instance.createInitialSimplex(v0, v1, v2, v3)
     // @ts-ignore Guaranteed to not be null because of the input.
     expect(instance.nextVertexToAdd().point).toEqual([0, -3, 0])
   })
@@ -164,7 +177,7 @@ describe('QuickHull', () => {
   })
 
   it('case: tetrahedron', function () {
-    const points: Point[] = [
+    const points: Vec3Like[] = [
       [0, 1, 0],
       [1, -1, 1],
       [-1, -1, 1],
@@ -179,7 +192,7 @@ describe('QuickHull', () => {
   })
 
   it('case: box (without triangulation)', function () {
-    const points: Point[] = [
+    const points: Vec3Like[] = [
       [0, 0, 0],
       [1, 0, 0],
       [0, 1, 0],
@@ -202,7 +215,7 @@ describe('QuickHull', () => {
   })
 
   it('case: box (with triangulation)', function () {
-    const points: Point[] = [
+    const points: Vec3Like[] = [
       [0, 0, 0],
       [1, 0, 0],
       [0, 1, 0],
@@ -217,7 +230,7 @@ describe('QuickHull', () => {
   })
 
   it('case: box (without triangulation, additional points inside)', function () {
-    const points: Point[] = [
+    const points: Vec3Like[] = [
       [0, 0, 0],
       [1, 0, 0],
       [0, 1, 0],
@@ -248,7 +261,7 @@ describe('QuickHull', () => {
   })
 
   it('case: octahedron', function () {
-    const points: Point[] = [
+    const points: Vec3Like[] = [
       [1, 0, 0],
       [0, 1, 0],
       [0, 0, 1],
@@ -269,7 +282,7 @@ describe('QuickHull', () => {
   })
 
   it('predefined set of points #1', function () {
-    const points: Point[] = [
+    const points: Vec3Like[] = [
       [104, 216, 53],
       [104, 217, 52],
       [105, 216, 52],
@@ -283,7 +296,7 @@ describe('QuickHull', () => {
   })
 
   it('predefined set of points #2', function () {
-    const points: Point[] = [
+    const points: Vec3Like[] = [
       [-0.8592737372964621, 83.55000647716224, 99.76234347559512],
       [1.525216130539775, 82.31873814947903, 27.226063096895814],
       [-71.64689642377198, -9.807108994573355, -20.06765645928681],
@@ -305,14 +318,8 @@ describe('QuickHull', () => {
     expect(isConvexHull(points, faces)).toBe(true)
   })
 
-  it('predefined set of points #5', function () {
-    const points = require('./issue5.json')
-    const faces = qh(points)
-    expect(isConvexHull(points, faces)).toBe(true)
-  })
-
   it('point inside hull', function () {
-    const points: Point[] = [
+    const points: Vec3Like[] = [
       [0, 0, 0],
       [1, 0, 0],
       [0, 1, 0],
@@ -331,5 +338,97 @@ describe('QuickHull', () => {
     // point is outside the hull
     expect(isPointInsideHull([1, 1, 1.0000001], points, faces)).toBe(false)
     expect(isPointInsideHull([0, 0, -0.0000001], points, faces)).toBe(false)
+  })
+
+  describe('degenerate cases', function () {
+    it("all points don't belong to a plane", function () {
+      const instance = new QuickHull(cube)
+      const [v0, v1, v2] = instance.computeTetrahedronExtremes()
+      expect(instance.allPointsBelongToPlane(v0, v1, v2)).toBe(false)
+    })
+
+    it('all points belong to plane (parallel to xy)', function () {
+      const points: Vec3Like[] = [
+        [1, 1, 0],
+        [2, 4, 0],
+        [3, 5, 0],
+        [5, 5, 0],
+        [10, 10, 0]
+      ]
+      const instance = new QuickHull(points)
+      const [v0, v1, v2] = instance.computeTetrahedronExtremes()
+      expect(instance.allPointsBelongToPlane(v0, v1, v2)).toBe(true)
+    })
+
+    it('all points belong to plane (skewed plane)', function () {
+      const points: Vec3Like[] = [
+        [-8, 1, 0],
+        [-7, 4, 0],
+        [-6, 5, -2],
+        [-7, 0, -4],
+        [-8, 0, -1]
+      ]
+      const instance = new QuickHull(points)
+      const [v0, v1, v2] = instance.computeTetrahedronExtremes()
+      expect(instance.allPointsBelongToPlane(v0, v1, v2)).toBe(true)
+    })
+
+    it('should compute a 2d convex hull when all points belong to plane (parallel to xy)', function () {
+      const points: Vec3Like[] = [
+        [1, 1, 0],
+        [10, 1, 0],
+        [1, 10, 0],
+        [2, 3, 0],
+        [3, 4, 0],
+        [9, 9, 0],
+        [10, 4, 0],
+        [4, 10, 0],
+        [5, 8, 0],
+        [10, 10, 0]
+      ]
+      const instance = new QuickHull(points).build()
+      const faces = instance.collectFaces(true)
+      expect(faces.length).toBe(1)
+      expect(faces[0].length).toBe(4)
+      for (const p of points) {
+        expect(isPointInsideHull(p, points, faces)).toBe(true)
+      }
+    })
+
+    it('should compute a 2d convex hull when all points belong to plane (skewed)', function () {
+      const points: Vec3Like[] = [
+        [-8, 1, 0],
+        [-7, 4, 0],
+        [-6, 5, -2],
+        [-7, 0, -4],
+        [-8, 0, -1]
+      ]
+      const instance = new QuickHull(points).build()
+      const faces = instance.collectFaces(true)
+      expect(faces.length).toBe(1)
+      expect(faces[0].length).toBe(5)
+      for (const p of points) {
+        expect(isPointInsideHull(p, points, faces)).toBe(true)
+      }
+    })
+
+    it('predefined set of points #5 (with z=0)', function () {
+      const points = require('./issue5.json')
+      const faces = qh(points)
+      expect(isConvexHull(points, faces)).toBe(true)
+      for (const p of points) {
+        expect(isPointInsideHull(p, points, faces)).toBe(true)
+      }
+    })
+
+    it('predefined set of points #5 (with z=0, no triangulation)', function () {
+      const points = require('./issue5.json')
+      const faces = qh(points, { skipTriangulation: true })
+      expect(faces.length).toBe(1)
+      expect(isConvexHull(points, faces)).toBe(true)
+      for (const p of points) {
+        expect(isPointInsideHull(p, points, faces)).toBe(true)
+      }
+    })
   })
 })

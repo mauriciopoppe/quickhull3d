@@ -1,8 +1,9 @@
 import { distance, squaredDistance } from 'gl-vec3'
 import { Face } from './Face'
 import { Vertex } from './Vertex'
+import { default as $debug } from 'debug'
 
-const debug = require('debug')('halfedge')
+const debug = $debug('halfedge')
 
 export class HalfEdge {
   vertex: Vertex

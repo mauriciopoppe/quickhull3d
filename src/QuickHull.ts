@@ -1,6 +1,7 @@
 import pointLineDistance from 'point-line-distance'
 import getPlaneNormal from 'get-plane-normal'
 import { dot } from 'gl-vec3'
+import { default as $debug } from 'debug'
 
 import { Point, Face as IFace } from './types'
 import { VertexList } from './VertexList'
@@ -8,7 +9,7 @@ import { Vertex } from './Vertex'
 import { HalfEdge } from './HalfEdge'
 import { Face, Mark } from './Face'
 
-const debug = require('debug')('quickhull')
+const debug = $debug('quickhull')
 
 // merge types
 // non convex with respect to the large face

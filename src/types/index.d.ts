@@ -1,3 +1,7 @@
+declare module 'debug' {
+  export default function debug(args: any): any
+}
+
 declare module 'gl-vec3' {
   export function add(out: number[], a: number[], b: number[]): number[];
   export function dot(a: number[], b: number[]): number;

@@ -165,7 +165,7 @@ export class QuickHull {
         // the reference `vertex.next` might be destroyed on
         // `this.addVertexToFace` (see VertexList#add), nextVertex is a
         // reference to it
-        let nextVertex
+        let nextVertex: Vertex
         for (let vertex = faceVertices; vertex; vertex = nextVertex) {
           nextVertex = vertex.next
           const distance = absorbingFace.distanceToPlane(vertex.point)
@@ -194,7 +194,7 @@ export class QuickHull {
     for (let vertex = vertexNext; vertex; vertex = vertexNext) {
       vertexNext = vertex.next
       let maxDistance = this.tolerance
-      let maxFace
+      let maxFace: Face
       for (let i = 0; i < newFaces.length; i += 1) {
         const face = newFaces[i]
         if (face.mark === Mark.Visible) {
@@ -228,30 +228,28 @@ export class QuickHull {
     // max vertex on the x,y,z directions
     const maxVertices = []
 
-    let i, j
-
     // initially assume that the first vertex is the min/max
-    for (i = 0; i < 3; i += 1) {
+    for (let i = 0; i < 3; i += 1) {
       minVertices[i] = maxVertices[i] = this.vertices[0]
     }
     // copy the coordinates of the first vertex to min/max
-    for (i = 0; i < 3; i += 1) {
+    for (let i = 0; i < 3; i += 1) {
       min[i] = max[i] = this.vertices[0].point[i]
     }
 
     // compute the min/max vertex on all 6 directions
-    for (i = 1; i < this.vertices.length; i += 1) {
+    for (let i = 1; i < this.vertices.length; i += 1) {
       const vertex = this.vertices[i]
       const point = vertex.point
       // update the min coordinates
-      for (j = 0; j < 3; j += 1) {
+      for (let j = 0; j < 3; j += 1) {
         if (point[j] < min[j]) {
           min[j] = point[j]
           minVertices[j] = vertex
         }
       }
       // update the max coordinates
-      for (j = 0; j < 3; j += 1) {
+      for (let j = 0; j < 3; j += 1) {
         if (point[j] > max[j]) {
           max[j] = point[j]
           maxVertices[j] = vertex
@@ -278,7 +276,6 @@ export class QuickHull {
   createInitialSimplex () {
     const vertices = this.vertices
     const [min, max] = this.computeExtremes()
-    let i, j
 
     // Find the two vertices with the greatest 1d separation
     // (max.x - min.x)
@@ -286,7 +283,7 @@ export class QuickHull {
     // (max.z - min.z)
     let maxDistance = 0
     let indexMax = 0
-    for (i = 0; i < 3; i += 1) {
+    for (let i = 0; i < 3; i += 1) {
       const distance = max[i].point[i] - min[i].point[i]
       if (distance > maxDistance) {
         maxDistance = distance
@@ -295,11 +292,11 @@ export class QuickHull {
     }
     const v0 = min[indexMax]
     const v1 = max[indexMax]
-    let v2, v3
+    let v2: Vertex, v3: Vertex
 
     // the next vertex is the one farthest to the line formed by `v0` and `v1`
     maxDistance = 0
-    for (i = 0; i < this.vertices.length; i += 1) {
+    for (let i = 0; i < this.vertices.length; i += 1) {
       const vertex = this.vertices[i]
       if (vertex !== v0 && vertex !== v1) {
         const distance = pointLineDistance(
@@ -318,7 +315,7 @@ export class QuickHull {
     // distance from the origin to the plane
     const distPO = dot(v0.point, normal)
     maxDistance = -1
-    for (i = 0; i < this.vertices.length; i += 1) {
+    for (let i = 0; i < this.vertices.length; i += 1) {
       const vertex = this.vertices[i]
       if (vertex !== v0 && vertex !== v1 && vertex !== v2) {
         const distance = Math.abs(dot(normal, vertex.point) - distPO)
@@ -366,7 +363,7 @@ export class QuickHull {
       )
 
       // set the opposite edge
-      for (i = 0; i < 3; i += 1) {
+      for (let i = 0; i < 3; i += 1) {
         const j = (i + 1) % 3
         // join face[i] i > 0, with the first face
         faces[i + 1].getEdge(2).setOpposite(faces[0].getEdge(j))
@@ -384,7 +381,7 @@ export class QuickHull {
       )
 
       // set the opposite edge
-      for (i = 0; i < 3; i += 1) {
+      for (let i = 0; i < 3; i += 1) {
         const j = (i + 1) % 3
         // join face[i] i > 0, with the first face
         faces[i + 1].getEdge(2).setOpposite(faces[0].getEdge((3 - i) % 3))
@@ -394,17 +391,17 @@ export class QuickHull {
     }
 
     // the initial hull is the tetrahedron
-    for (i = 0; i < 4; i += 1) {
+    for (let i = 0; i < 4; i += 1) {
       this.faces.push(faces[i])
     }
 
     // initial assignment of vertices to the faces of the tetrahedron
-    for (i = 0; i < vertices.length; i += 1) {
+    for (let i = 0; i < vertices.length; i += 1) {
       const vertex = vertices[i]
       if (vertex !== v0 && vertex !== v1 && vertex !== v2 && vertex !== v3) {
         maxDistance = this.tolerance
-        let maxFace
-        for (j = 0; j < 4; j += 1) {
+        let maxFace: Face
+        for (let j = 0; j < 4; j += 1) {
           const distance = faces[j].distanceToPlane(vertex.point)
           if (distance > maxDistance) {
             maxDistance = distance
@@ -461,7 +458,7 @@ export class QuickHull {
    */
   nextVertexToAdd () {
     if (!this.claimed.isEmpty()) {
-      let eyeVertex, vertex
+      let eyeVertex: Vertex, vertex: Vertex
       let maxDistance = 0
       const eyeFace = this.claimed.first().face
       for (vertex = eyeFace.outside; vertex && vertex.face === eyeFace; vertex = vertex.next) {
@@ -492,7 +489,7 @@ export class QuickHull {
 
     face.mark = Mark.Deleted
 
-    let edge
+    let edge: HalfEdge
     if (!crossEdge) {
       edge = crossEdge = face.getEdge(0)
     } else {
@@ -570,7 +567,7 @@ export class QuickHull {
    */
   addNewFaces (eyeVertex: Vertex, horizon: HalfEdge[]) {
     this.newFaces = []
-    let firstSideEdge, previousSideEdge
+    let firstSideEdge: HalfEdge, previousSideEdge: HalfEdge
     for (let i = 0; i < horizon.length; i += 1) {
       const horizonEdge = horizon[i]
       // returns the right side edge
@@ -771,7 +768,7 @@ export class QuickHull {
 
   build () {
     let iterations = 0
-    let eyeVertex
+    let eyeVertex: Vertex
     this.createInitialSimplex()
     while ((eyeVertex = this.nextVertexToAdd())) {
       iterations += 1

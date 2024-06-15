@@ -20,10 +20,9 @@ const tetrahedron: Point[] = [
 ]
 
 function isConvexHull (points: Point[], faces: Face[]) {
-  let i, j
   const n = points.length
   let nError = 0
-  for (i = 0; i < faces.length; i += 1) {
+  for (let i = 0; i < faces.length; i += 1) {
     const normal = getPlaneNormal(
       [],
       points[faces[i][0]],
@@ -31,7 +30,7 @@ function isConvexHull (points: Point[], faces: Face[]) {
       points[faces[i][2]]
     )
     const offset = vec3.dot(normal, points[faces[i][0]])
-    for (j = 0; j < n; j += 1) {
+    for (let j = 0; j < n; j += 1) {
       if (faces[i].indexOf(j) === -1) {
         const aboveFace = vec3.dot(points[j], normal) > offset + EPS
         if (aboveFace) {
@@ -56,11 +55,10 @@ function faceShift (f: Face) {
 
 function equalShifted (f1: Face, f2: Face) {
   let equals = 0
-  let j
   // the length of f1/f2 is the same, checked on equalIndexes
   for (let i = 0; i < f2.length; i += 1) {
     let singleEq = 0
-    for (j = 0; j < f2.length; j += 1) {
+    for (let j = 0; j < f2.length; j += 1) {
       singleEq += Number(f1[j] === f2[j])
     }
     if (singleEq === f2.length) {
@@ -73,11 +71,10 @@ function equalShifted (f1: Face, f2: Face) {
 }
 
 function equalIndexes (f1: Face[], f2: Face[]) {
-  let i, j
   expect(f1.length).toEqual(f2.length)
   const f1tof2 = []
-  for (i = 0; i < f1.length; i += 1) {
-    for (j = 0; j < f2.length; j += 1) {
+  for (let i = 0; i < f1.length; i += 1) {
+    for (let j = 0; j < f2.length; j += 1) {
       const eq = equalShifted(f1[i], f2[j])
       if (eq) {
         assert(typeof f1tof2[i] === 'undefined')
@@ -86,7 +83,7 @@ function equalIndexes (f1: Face[], f2: Face[]) {
       }
     }
   }
-  for (i = 0; i < f1.length; i += 1) {
+  for (let i = 0; i < f1.length; i += 1) {
     if (f1tof2[i] === undefined) {
       console.error(f1)
       console.error('face %d does not exist', i)
@@ -158,6 +155,7 @@ describe('QuickHull', () => {
     ]
     const instance = new QuickHull(p)
     instance.createInitialSimplex()
+    // @ts-ignore Guaranteed to not be null because of the input.
     expect(instance.nextVertexToAdd().point).toEqual([0, -3, 0])
   })
 

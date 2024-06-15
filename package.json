@@ -39,7 +39,8 @@
   },
   "standard": {
     "ignore": [
-      "/dist"
+      "dist",
+      "docs"
     ]
   },
   "files": [

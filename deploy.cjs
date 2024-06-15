@@ -9,7 +9,7 @@ ghpages.publish(
   {
     nojekyll: true,
     add: true,
-    async beforeAdd() {}
+    async beforeAdd () {}
   },
   function () {
     execSync('rm docs/quickhull3d.js', { stdio: 'inherit' })

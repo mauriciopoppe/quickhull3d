@@ -15,16 +15,16 @@ const params = {
 
 init()
 
-function generatePointCloud () {
+function generatePointCloud() {
   const N_POINTS = params.nPoints
   const LIMIT = params.domain
   let i
 
-  function p () {
+  function p() {
     return -LIMIT + 2 * Math.random() * LIMIT
   }
 
-  function pointGenerator () {
+  function pointGenerator() {
     return [p(), p(), p()]
   }
 
@@ -35,11 +35,12 @@ function generatePointCloud () {
   return points
 }
 
-function ConvexMesh () {
+function ConvexMesh() {
   const points = generatePointCloud()
-  console.time('quickhull')
+  const t0 = performance.now()
   const faces = qh(points)
-  console.timeEnd('quickhull')
+  const t1 = performance.now()
+  console.log(`nPoints=${points.length} timeToCompute = ${t1 - t0}ms`)
 
   const geometry = new THREE.BufferGeometry()
   const vertices = []
@@ -62,7 +63,7 @@ function ConvexMesh () {
   return polyhedra
 }
 
-function rebuild (group) {
+function rebuild(group) {
   group.clear()
 
   // polyhedra
@@ -74,7 +75,7 @@ function rebuild (group) {
   group.add(vertHelper)
 }
 
-function init () {
+function init() {
   scene = new THREE.Scene()
   scene.background = new THREE.Color(0xcccccc)
   scene.fog = new THREE.FogExp2(0xcccccc, 0.002)
@@ -133,19 +134,19 @@ function init () {
   window.addEventListener('resize', onWindowResize)
 }
 
-function onWindowResize () {
+function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
 
   renderer.setSize(window.innerWidth, window.innerHeight)
 }
 
-function animate () {
+function animate() {
   controls.update() // only required if controls.enableDamping = true, or if controls.autoRotate = true
 
   render()
 }
 
-function render () {
+function render() {
   renderer.render(scene, camera)
 }

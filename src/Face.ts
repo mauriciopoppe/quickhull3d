@@ -1,4 +1,12 @@
-import { dot, add, copy, subtract, cross, length as magnitude, scale, scaleAndAdd, normalize } from 'gl-matrix/vec3'
+import dot from 'gl-vec3/dot'
+import add from 'gl-vec3/add'
+import subtract from 'gl-vec3/subtract'
+import cross from 'gl-vec3/cross'
+import copy from 'gl-vec3/copy'
+import { default as magnitude } from 'gl-vec3/length'
+import scale from 'gl-vec3/scale'
+import scaleAndAdd from 'gl-vec3/scaleAndAdd'
+import normalize from 'gl-vec3/normalize'
 import { default as $debug } from 'debug'
 
 import { Vec3Like } from './types'
@@ -24,8 +32,8 @@ export class Face {
   area: number
 
   constructor() {
-    this.normal = new Float32Array(3)
-    this.centroid = new Float32Array(3)
+    this.normal = [0, 0, 0]
+    this.centroid = [0, 0, 0]
     // signed distance from face to the origin
     this.offset = 0
     // pointer to the a vertex in a double linked list this face can see
@@ -52,12 +60,13 @@ export class Face {
     const e0 = this.edge
     const e1 = e0.next
     let e2 = e1.next
-    const v2 = subtract(new Float32Array(3), e1.head().point, e0.head().point)
-    const t = new Float32Array(3)
-    const v1 = new Float32Array(3)
+    const v2 = subtract([], e1.head().point, e0.head().point)
+    const t = []
+    const v1 = []
 
     this.nVertices = 2
-    this.normal = new Float32Array(3)
+    this.normal = [0, 0, 0]
+    // console.log(this.normal)
     while (e2 !== e0) {
       copy(v1, v2)
       subtract(v2, e2.head().point, e0.head().point)
@@ -92,7 +101,7 @@ export class Face {
 
       const p1 = maxEdge.tail().point
       const p2 = maxEdge.head().point
-      const maxVector = subtract(new Float32Array(3), p2, p1)
+      const maxVector = subtract([], p2, p1)
       const maxLength = Math.sqrt(maxSquaredLength)
       // maxVector is normalized after this operation
       scale(maxVector, maxVector, 1 / maxLength)

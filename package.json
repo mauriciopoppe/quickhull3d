@@ -55,7 +55,9 @@
   "dependencies": {
     "debug": "^4.3.4",
     "get-plane-normal": "^1.0.0",
-    "gl-matrix": "^3.4.3",
+    "gl-mat4": "^1.2.0",
+    "gl-quat": "^1.0.0",
+    "gl-vec4": "^1.0.1",
     "monotone-convex-hull-2d": "^1.0.1",
     "point-line-distance": "^1.0.0"
   },
@@ -65,7 +67,6 @@
     "@babel/preset-typescript": "^7.24.7",
     "@jest/globals": "^29.7.0",
     "@types/debug": "^4.1.12",
-    "@types/gl-vec3": "^1.1.4",
     "@types/node": "^20.14.2",
     "gh-pages": "^6.1.1",
     "jest": "^29.0.1",
@@ -75,8 +76,6 @@
     "ts-jest-resolver": "^2.0.1",
     "ts-loader": "^9.5.1",
     "typescript": "^5.4.5",
-    "watch": "^1.0.2",
-    "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^5.1.4"
   }
 }

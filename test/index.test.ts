@@ -1,6 +1,9 @@
 import { expect, describe, it } from '@jest/globals'
 import assert from 'assert'
-import { dot, cross, subtract, length } from 'gl-matrix/vec3'
+import dot from 'gl-vec3/dot'
+import cross from 'gl-vec3/cross'
+import subtract from 'gl-vec3/subtract'
+import length from 'gl-vec3/length'
 import getPlaneNormal from 'get-plane-normal'
 
 import qh, { isPointInsideHull, QuickHull, Face, Vec3Like } from '../src/'
@@ -33,7 +36,7 @@ function isConvexHull(points: Vec3Like[], faces: Face[]) {
   const n = points.length
   let nError = 0
   for (let i = 0; i < faces.length; i += 1) {
-    const normal = getPlaneNormal(new Float32Array(3), points[faces[i][0]], points[faces[i][1]], points[faces[i][2]])
+    const normal = getPlaneNormal([0, 0, 0], points[faces[i][0]], points[faces[i][1]], points[faces[i][2]])
     const offset = dot(normal, points[faces[i][0]])
     for (let j = 0; j < n; j += 1) {
       if (faces[i].indexOf(j) === -1) {

@@ -1,10 +1,12 @@
 import pointLineDistance from 'point-line-distance'
 import getPlaneNormal from 'get-plane-normal'
 import monotoneHull from 'monotone-convex-hull-2d'
-import { scale, dot } from 'gl-matrix/vec3'
-import { fromValues, transformMat4 } from 'gl-matrix/vec4'
-import { fromRotationTranslation } from 'gl-matrix/mat4'
-import { rotationTo } from 'gl-matrix/quat'
+import dot from 'gl-vec3/dot'
+import scale from 'gl-vec3/scale'
+import fromValues from 'gl-vec4/fromValues'
+import transformMat4 from 'gl-vec4/transformMat4'
+import fromRotationTranslation from 'gl-mat4/fromRotationTranslation'
+import rotationTo from 'gl-quat/rotationTo'
 import { default as $debug } from 'debug'
 
 import { Face as IFace } from './types'
@@ -224,7 +226,7 @@ export class QuickHull {
    * Checks if all the points belong to a plane (2d degenerate case)
    */
   allPointsBelongToPlane(v0: Vertex, v1: Vertex, v2: Vertex) {
-    const normal = getPlaneNormal(new Float32Array(3), v0.point, v1.point, v2.point)
+    const normal = getPlaneNormal([0, 0, 0], v0.point, v1.point, v2.point)
     for (const vertex of this.vertices) {
       const dist = dot(vertex.point, normal)
       if (dist > this.tolerance) {
@@ -239,22 +241,22 @@ export class QuickHull {
    * Computes the convex hull of a plane.
    */
   convexHull2d(v0: Vertex, v1: Vertex, v2: Vertex) {
-    const planeNormal = getPlaneNormal(new Float32Array(3), v0.point, v1.point, v2.point)
+    const planeNormal = getPlaneNormal([0, 0, 0], v0.point, v1.point, v2.point)
 
     // To do the rotation let's use a quaternion
     // first let's find a target plane to rotate to e.g. the x-z plane with a normal equal to the y-axis
     let basisPlaneNormal: [number, number, number] = [0, 1, 0]
 
     // Create a quaternion that represents the rotation between normal and the basisPlaneNormal.
-    const rotation = rotationTo(new Float32Array(4), planeNormal, basisPlaneNormal)
+    const rotation = rotationTo([], planeNormal, basisPlaneNormal)
     // Create a vec3 that represents a translation from the plane to the origin.
-    const translation = scale(new Float32Array(3), planeNormal, -dot(v0.point, planeNormal))
+    const translation = scale([], planeNormal, -dot(v0.point, planeNormal))
     // Create a rotation -> translation matrix from a quaternion and a vec3
-    const matrix = fromRotationTranslation(new Float32Array(16), rotation, translation)
+    const matrix = fromRotationTranslation([], rotation, translation)
     const transformedVertices = []
     for (const vertex of this.vertices) {
       const a = fromValues(vertex.point[0], vertex.point[1], vertex.point[2], 0)
-      const aP = transformMat4(new Float32Array(4), a, matrix)
+      const aP = transformMat4([], a, matrix)
 
       // Make sure that the y value is close to 0
       if (debug.enabled) {
@@ -363,7 +365,7 @@ export class QuickHull {
 
     // the next vertes is the one farthest to the plane `v0`, `v1`, `v2`
     // normalize((v2 - v1) x (v0 - v1))
-    const normal = getPlaneNormal(new Float32Array(3), v0.point, v1.point, v2.point)
+    const normal = getPlaneNormal([0, 0, 0], v0.point, v1.point, v2.point)
     // distance from the origin to the plane
     const distPO = dot(v0.point, normal)
     maxDistance = -1
@@ -386,7 +388,7 @@ export class QuickHull {
    * are candidates to form part of the hull
    */
   createInitialSimplex(v0: Vertex, v1: Vertex, v2: Vertex, v3: Vertex) {
-    const normal = getPlaneNormal(new Float32Array(3), v0.point, v1.point, v2.point)
+    const normal = getPlaneNormal([0, 0, 0], v0.point, v1.point, v2.point)
     const distPO = dot(v0.point, normal)
 
     // initial simplex

@@ -38,13 +38,14 @@ Click on the image to see a demo!
   ]
 
   const faces = qh(points)
+  console.log(faces)
   // output:
-  // [ [ 2, 0, 3 ], [ 0, 1, 3 ], [ 2, 1, 0 ], [ 2, 3, 1 ] ]
+  // [ [ 2, 1, 0 ], [ 3, 1, 2 ], [ 3, 0, 1 ], [ 3, 2, 0 ] ]
   // 1st face:
   //   points[2] = [-1, -1, 1]
+  //   points[1] = [1, -1, 1]
   //   points[0] = [0, 1, 0]
-  //   points[3] = [0, -1, -1]
-  //   normal = (points[0] - points[2]) x (points[3] - points[2])
+  //   normal = (points[1] - points[2]) x (points[0] - points[2])
 </script>
 ```
 

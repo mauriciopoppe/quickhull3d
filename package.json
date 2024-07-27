@@ -1,6 +1,6 @@
 {
   "name": "quickhull3d",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "A quickhull implementation for 3d points",
   "homepage": "https://github.com/mauriciopoppe/quickhull3d",
   "author": {

@@ -227,9 +227,10 @@ export class QuickHull {
    */
   allPointsBelongToPlane(v0: Vertex, v1: Vertex, v2: Vertex) {
     const normal = getPlaneNormal([0, 0, 0], v0.point, v1.point, v2.point)
+    const distToPlane = dot(normal, v0.point)
     for (const vertex of this.vertices) {
       const dist = dot(vertex.point, normal)
-      if (dist > this.tolerance) {
+      if (Math.abs(dist - distToPlane) > this.tolerance) {
         // A vertex is not part of the plane formed by ((v0 - v1) X (v0 - v2))
         return false
       }

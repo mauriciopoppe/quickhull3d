@@ -10,6 +10,9 @@ let camera, controls, scene, renderer
 const params = {
   nPoints: 100,
   domain: 100,
+  originX: 0,
+  originY: 0,
+  originZ: 0,
   timeToCompute: 'please check console!'
 }
 
@@ -25,7 +28,7 @@ function generatePointCloud() {
   }
 
   function pointGenerator() {
-    return [p(), p(), p()]
+    return [params.originX + p(), params.originY + p(), params.originZ + p()]
   }
 
   const points = []
@@ -126,9 +129,16 @@ function init() {
   const ambientLight = new THREE.AmbientLight(0x555555)
   scene.add(ambientLight)
 
+  // helpers
+  const axesHelper = new THREE.AxesHelper(5)
+  scene.add(axesHelper)
+
   const gui = new GUI()
   gui.add(params, 'nPoints', 10, 1000).onChange(() => rebuild(group))
   gui.add(params, 'domain', 50, 150).onChange(() => rebuild(group))
+  gui.add(params, 'originX', -100, 100).onChange(() => rebuild(group))
+  gui.add(params, 'originY', -100, 100).onChange(() => rebuild(group))
+  gui.add(params, 'originZ', -100, 100).onChange(() => rebuild(group))
   gui.add(params, 'timeToCompute')
 
   window.addEventListener('resize', onWindowResize)

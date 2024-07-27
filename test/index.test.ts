@@ -321,6 +321,22 @@ describe('QuickHull', () => {
     expect(isConvexHull(points, faces)).toBe(true)
   })
 
+  it('predefined set of points (dup vertices) #38', function () {
+    let faces: Array<Face>
+    const points = require('./issue38.json')
+    faces = qh(points, { skipTriangulation: true })
+    expect(isConvexHull(points, faces)).toBe(true)
+    expect(faces.length).toBe(6)
+
+    function translate(points: Array<Vec3Like>, translation: Vec3Like): Array<Vec3Like> {
+      return points.map((point) => [point[0] + translation[0], point[1] + translation[1], point[2] + translation[2]])
+    }
+    const translatedPoints = translate(points, [0, 0, 5])
+    const translatedfaces = qh(translatedPoints, { skipTriangulation: true })
+    expect(isConvexHull(translatedPoints, faces)).toBe(true)
+    expect(translatedfaces.length).toBe(6)
+  })
+
   it('point inside hull', function () {
     const points: Vec3Like[] = [
       [0, 0, 0],

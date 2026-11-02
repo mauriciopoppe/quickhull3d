@@ -823,7 +823,7 @@ export class QuickHull {
       if (face.mark === Mark.NonConvex) {
         face.mark = Mark.Visible
         // eslint-disable-next-line
-        while (this.doAdjacentMerge(face, MergeType.NonConvexWrtLargerFace)) {}
+        while (this.doAdjacentMerge(face, MergeType.NonConvex)) {}
       }
     }
 
